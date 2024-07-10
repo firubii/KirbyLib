@@ -203,7 +203,7 @@ namespace KirbyLib.Mapping
 
             reader.BaseStream.Position = collisionSection;
             reader.BaseStream.Position = reader.ReadUInt32();
-            Collision = ReadCollision(reader);
+            Collision = ReadCollisionShuffled(reader);
 
             reader.BaseStream.Position = movingTerrainSection;
             uint validTerrain = reader.ReadUInt32();
@@ -338,7 +338,7 @@ namespace KirbyLib.Mapping
 
             writer.WritePositionAt(headerStart + 0xC);
             writer.Write((uint)writer.BaseStream.Position + 0x4);
-            WriteCollision(writer, Collision);
+            WriteCollisionShuffled(writer, Collision);
 
             long movingTerrainSection = writer.BaseStream.Position;
             writer.WritePositionAt(headerStart + 0x10);

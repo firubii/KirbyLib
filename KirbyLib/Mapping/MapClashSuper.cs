@@ -5,10 +5,14 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using static KirbyLib.Mapping.MapRtDL;
 
 namespace KirbyLib.Mapping
 {
+    /// <summary>
+    /// A map file for Super Kirby Clash.<br/><br/>
+    /// The format is mostly identical to Kirby Star Allies.<br/>
+    /// Because of this, there are several unused sections.
+    /// </summary>
     public class MapClashSuper : Map2D
     {
         #region Structs
@@ -190,7 +194,7 @@ namespace KirbyLib.Mapping
 
             reader.BaseStream.Position = collisionSection;
             reader.BaseStream.Position = reader.ReadUInt32();
-            Collision = ReadCollision(reader);
+            Collision = ReadCollisionShuffled(reader);
 
             reader.BaseStream.Position = movingTerrainSection;
             uint validTerrain = reader.ReadUInt32();
@@ -327,7 +331,7 @@ namespace KirbyLib.Mapping
 
             writer.WritePositionAt(headerStart + 0xC);
             writer.Write((uint)writer.BaseStream.Position + 0x4);
-            WriteCollision(writer, Collision);
+            WriteCollisionShuffled(writer, Collision);
 
             long movingTerrainSection = writer.BaseStream.Position;
             writer.WritePositionAt(headerStart + 0x10);

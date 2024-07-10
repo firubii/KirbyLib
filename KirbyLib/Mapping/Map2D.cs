@@ -58,6 +58,26 @@ namespace KirbyLib.Mapping
             return collision;
         }
 
+        protected CollisionTile[,] ReadCollisionShuffled(EndianBinaryReader reader)
+        {
+            uint width = reader.ReadUInt32();
+            uint height = reader.ReadUInt32();
+            CollisionTile[,] collision = new CollisionTile[width, height];
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    LandGridProperty prop = (LandGridProperty)reader.ReadByte();
+                    byte material = reader.ReadByte();
+                    LandGridShapeKind shape = (LandGridShapeKind)reader.ReadByte();
+                    sbyte conveyor = reader.ReadSByte();
+
+                    collision[x, y] = new CollisionTile(shape, prop, material, conveyor);
+                }
+            }
+            return collision;
+        }
+
         protected void WriteCollision(EndianBinaryWriter writer, CollisionTile[,] collision)
         {
             int width = collision.GetLength(0);
@@ -72,6 +92,25 @@ namespace KirbyLib.Mapping
                     writer.Write((byte)tile.Shape);
                     writer.Write((byte)tile.PropertyFlags);
                     writer.Write(tile.Material);
+                    writer.Write(tile.ConveyorSpeed);
+                }
+            }
+        }
+
+        protected void WriteCollisionShuffled(EndianBinaryWriter writer, CollisionTile[,] collision)
+        {
+            int width = collision.GetLength(0);
+            int height = collision.GetLength(1);
+            writer.Write(width);
+            writer.Write(height);
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    var tile = collision[x, y];
+                    writer.Write((byte)tile.PropertyFlags);
+                    writer.Write(tile.Material);
+                    writer.Write((byte)tile.Shape);
                     writer.Write(tile.ConveyorSpeed);
                 }
             }
