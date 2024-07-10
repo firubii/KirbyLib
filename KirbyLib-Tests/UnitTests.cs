@@ -2,7 +2,6 @@ using KirbyLib;
 using KirbyLib.IO;
 using KirbyLib.Mapping;
 using System.IO;
-using static System.Net.WebRequestMethods;
 
 namespace KirbyLib_Tests
 {
