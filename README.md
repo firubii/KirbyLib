@@ -24,6 +24,8 @@ All sections of all formats are fully supported.
 	* Version 3 (Kirby and the Forgotten Land and later)
 * **Generic Archives**
 	* Used as a generic container across HAL Laboratory games, usually for parameter files (i.e. Kirby's Return to Dream Land)
+* **Msg Filter**
+	* Used to control which glyphs fonts will load.
 * **Yaml**
 	* Version 2 (Kirby: Planet Robobot to Kirby Fighters 2)
 	* Version 4 (Kirby and the Forgotten Land and Kirby's Dream Buffet)
