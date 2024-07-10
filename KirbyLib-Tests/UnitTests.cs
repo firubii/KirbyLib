@@ -529,5 +529,39 @@ namespace KirbyLib_Tests
             using (EndianBinaryReader reader = new EndianBinaryReader(stream))
                 fdg = new FDG(reader);
         }
+
+        [TestMethod]
+        public void FilterTest()
+        {
+            const string PATH = @"D:\Game Dumps\Kirby and the Forgotten Land\romfs\msg\Kirby15\US_English\Filter.bin";
+            const string OUT_PATH = "KatFL_Filter.bin";
+
+            MsgFilter filter;
+            using (FileStream stream = new FileStream(PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                filter = new MsgFilter(reader);
+
+            for (int i = 0; i < filter.Filters.Count; i++)
+            {
+                Console.WriteLine($"- {filter.Filters[i].Font}");
+                Console.WriteLine($"\t- {filter.Filters[i].Characters}");
+            }
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Create, FileAccess.Write))
+            using (EndianBinaryWriter writer = new EndianBinaryWriter(stream))
+                filter.Write(writer);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                filter = new MsgFilter(reader);
+
+            Console.WriteLine("-------------");
+
+            for (int i = 0; i < filter.Filters.Count; i++)
+            {
+                Console.WriteLine($"- {filter.Filters[i].Font}");
+                Console.WriteLine($"\t- {filter.Filters[i].Characters}");
+            }
+        }
     }
 }

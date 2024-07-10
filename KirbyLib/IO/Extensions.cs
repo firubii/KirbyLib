@@ -26,6 +26,11 @@ namespace KirbyLib.IO
             return Encoding.UTF8.GetString(reader.ReadBytes(reader.ReadInt32()));
         }
 
+        public static string ReadUnicodeStringHAL(this BinaryReader reader)
+        {
+            return Encoding.Unicode.GetString(reader.ReadBytes(reader.ReadInt32() * 2));
+        }
+
         public static void Align(this BinaryReader reader, int alignment = 0x4)
         {
             while ((reader.BaseStream.Position % alignment) != 0x0)
@@ -36,6 +41,15 @@ namespace KirbyLib.IO
         {
             byte[] strBytes = Encoding.UTF8.GetBytes(str);
             writer.Write(strBytes.Length);
+            writer.Write(strBytes);
+            writer.Write(0);
+            WritePadding(writer);
+        }
+
+        public static void WriteUnicodeStringHAL(this BinaryWriter writer, string str)
+        {
+            byte[] strBytes = Encoding.Unicode.GetBytes(str);
+            writer.Write(strBytes.Length / 2);
             writer.Write(strBytes);
             writer.Write(0);
             WritePadding(writer);
