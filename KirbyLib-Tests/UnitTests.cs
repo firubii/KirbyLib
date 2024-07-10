@@ -2,6 +2,7 @@ using KirbyLib;
 using KirbyLib.IO;
 using KirbyLib.Mapping;
 using System.IO;
+using static System.Net.WebRequestMethods;
 
 namespace KirbyLib_Tests
 {
@@ -562,6 +563,26 @@ namespace KirbyLib_Tests
                 Console.WriteLine($"- {filter.Filters[i].Font}");
                 Console.WriteLine($"\t- {filter.Filters[i].Characters}");
             }
+        }
+
+        [TestMethod]
+        public void Map3DTest()
+        {
+            const string PATH = @"D:\Game Dumps\Kirby Star Allies\romfs\map3d\LvMap\LvMap3\LvMap3Bg\LvMap3\TopL.bin";
+            const string OUT_PATH = "LvMap3_test.bin";
+
+            Map3D map3d;
+            using (FileStream stream = new FileStream(PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map3d = new Map3D(reader);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Create, FileAccess.Write))
+            using (EndianBinaryWriter writer = new EndianBinaryWriter(stream))
+                map3d.Write(writer);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map3d = new Map3D(reader);
         }
     }
 }

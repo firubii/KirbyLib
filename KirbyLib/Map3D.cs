@@ -44,6 +44,13 @@ namespace KirbyLib
         public int Unknown5;
         public int Unknown6;
 
+        public Map3D() { }
+
+        public Map3D(EndianBinaryReader reader)
+        {
+            Read(reader);
+        }
+
         public void Read(EndianBinaryReader reader)
         {
             XData.Read(reader);
@@ -55,14 +62,14 @@ namespace KirbyLib
             uint meshSection = reader.ReadUInt32();
             uint generalSection = reader.ReadUInt32();
 
-            reader.BaseStream.Position = meshSection;
+            reader.BaseStream.Position = meshSection + 4;
             Meshes = new List<Mesh>();
             uint meshCount = reader.ReadUInt32();
             for (uint i = 0; i < meshCount; i++)
             {
                 Mesh mesh = new Mesh();
 
-                reader.BaseStream.Position = meshSection + 4 + (i * 8);
+                reader.BaseStream.Position = meshSection + 8 + (i * 8);
                 uint triSection = reader.ReadUInt32();
                 mesh.Name = reader.ReadStringOffset();
 
@@ -79,6 +86,8 @@ namespace KirbyLib
 
                     mesh.Triangles.Add(tri);
                 }
+
+                Meshes.Add(mesh);
             }
 
             reader.BaseStream.Position = generalSection;
@@ -101,10 +110,12 @@ namespace KirbyLib
             writer.Write(MAGIC_NUMBER);
             writer.Write(-1);
             writer.Write(-1);
-            writer.Write(-1);
 
             long meshSection = writer.BaseStream.Position;
             writer.WritePositionAt(headerStart + 0x4);
+            writer.Write(-1);
+
+            long meshList = writer.BaseStream.Position;
             writer.Write(Meshes.Count);
             for (int i = 0; i < Meshes.Count; i++)
             {
@@ -125,7 +136,7 @@ namespace KirbyLib
             {
                 var mesh = Meshes[i];
 
-                writer.WritePositionAt(meshSection + 4 + (i * 8));
+                writer.WritePositionAt(meshList + 4 + (i * 8));
                 writer.Write(mesh.Triangles.Count);
                 for (int t = 0; t < mesh.Triangles.Count; t++)
                 {
@@ -136,11 +147,11 @@ namespace KirbyLib
                 }
             }
 
-            writer.WritePositionAt(headerStart + 0xC);
+            writer.WritePositionAt(meshSection);
             writer.Write(0);
             writer.Write(0);
             writer.Write(0);
-            writer.Write(writer.BaseStream.Position + 0x8);
+            writer.Write((uint)writer.BaseStream.Position + 0x8);
             writer.Write(0);
             writer.Write(0);
 
