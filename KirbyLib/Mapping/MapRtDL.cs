@@ -456,6 +456,7 @@ namespace KirbyLib.Mapping
                 boss.HasSuperAbility = reader.ReadInt32() != 0;
                 boss.X = reader.ReadInt32();
                 boss.Y = reader.ReadInt32();
+                boss.Unknown = reader.ReadUInt32();
 
                 Bosses.Add(boss);
             }
@@ -765,8 +766,8 @@ namespace KirbyLib.Mapping
                 writer.Write(boss.TerrainGroup);
                 writer.Write(boss.HasSuperAbility ? 1 : 0);
                 writer.Write(boss.X);
-                writer.Write(boss.Unknown);
                 writer.Write(boss.Y);
+                writer.Write(boss.Unknown);
             }
 
             writer.WritePositionAt(headerStart + 0x8);
