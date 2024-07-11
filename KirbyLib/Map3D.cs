@@ -151,7 +151,7 @@ namespace KirbyLib
             writer.Write(0);
             writer.Write(0);
             writer.Write(0);
-            writer.Write((uint)writer.BaseStream.Position + 0x8);
+            writer.Write((uint)writer.BaseStream.Position + 0xC);
             writer.Write(0);
             writer.Write(0);
 
