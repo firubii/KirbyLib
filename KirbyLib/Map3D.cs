@@ -140,10 +140,10 @@ namespace KirbyLib
                 writer.Write(mesh.Triangles.Count);
                 for (int t = 0; t < mesh.Triangles.Count; t++)
                 {
-                    writer.Write(mesh.Triangles[i].Vertex1);
-                    writer.Write(mesh.Triangles[i].Vertex2);
-                    writer.Write(mesh.Triangles[i].Vertex3);
-                    writer.Write(mesh.Triangles[i].Normal);
+                    writer.Write(mesh.Triangles[t].Vertex1);
+                    writer.Write(mesh.Triangles[t].Vertex2);
+                    writer.Write(mesh.Triangles[t].Vertex3);
+                    writer.Write(mesh.Triangles[t].Normal);
                 }
             }
 
