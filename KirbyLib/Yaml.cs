@@ -574,5 +574,87 @@ namespace KirbyLib
                 }
             }
         }
+
+        #region Casts
+
+        public static explicit operator int(YamlNode yaml)
+        {
+            if (yaml.Type == YamlType.Int)
+                return yaml.AsInt();
+
+            throw new InvalidCastException("YamlNode type is not Int");
+        }
+
+        public static explicit operator float(YamlNode yaml)
+        {
+            if (yaml.Type == YamlType.Float)
+                return yaml.AsFloat();
+
+            throw new InvalidCastException("YamlNode type is not Float");
+        }
+
+        public static explicit operator bool(YamlNode yaml)
+        {
+            if (yaml.Type == YamlType.Bool)
+                return yaml.AsBool();
+
+            throw new InvalidCastException("YamlNode type is not Bool");
+        }
+
+        public static explicit operator string(YamlNode yaml)
+        {
+            if (yaml.Type == YamlType.String)
+                return yaml.AsString();
+
+            throw new InvalidCastException("YamlNode type is not String");
+        }
+
+        public static explicit operator Dictionary<string, YamlNode>(YamlNode yaml)
+        {
+            if (yaml.Type == YamlType.Hash)
+                return yaml.AsHash();
+
+            throw new InvalidCastException("YamlNode type is not Hash");
+        }
+
+        public static explicit operator List<YamlNode>(YamlNode yaml)
+        {
+            if (yaml.Type == YamlType.Hash)
+                return yaml.AsList();
+
+            throw new InvalidCastException("YamlNode type is not Array");
+        }
+
+        public static implicit operator YamlNode(int value)
+        {
+            return new YamlNode(value);
+        }
+
+        public static implicit operator YamlNode(float value)
+        {
+            return new YamlNode(value);
+        }
+
+        public static implicit operator YamlNode(bool value)
+        {
+            return new YamlNode(value);
+        }
+
+        public static implicit operator YamlNode(string value)
+        {
+            return new YamlNode(value);
+        }
+
+        public static implicit operator YamlNode(Dictionary<string, YamlNode> value)
+        {
+            return new YamlNode(value);
+        }
+
+        public static implicit operator YamlNode(List<YamlNode> value)
+        {
+            return new YamlNode(value);
+        }
+
+        #endregion
     }
 }
