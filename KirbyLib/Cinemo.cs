@@ -440,5 +440,87 @@ namespace KirbyLib
 
             return "";
         }
+
+        #region Casts
+
+        public static explicit operator int(CinemoVariable variable)
+        {
+            if (variable.Type == CinemoType.Int)
+                return variable.AsInt();
+
+            throw new InvalidCastException("CinemoVariable type is not Int");
+        }
+
+        public static explicit operator float(CinemoVariable variable)
+        {
+            if (variable.Type == CinemoType.Float)
+                return variable.AsFloat();
+
+            throw new InvalidCastException("CinemoVariable type is not Float");
+        }
+
+        public static explicit operator bool(CinemoVariable variable)
+        {
+            if (variable.Type == CinemoType.Bool)
+                return variable.AsBool();
+
+            throw new InvalidCastException("CinemoVariable type is not Bool");
+        }
+
+        public static explicit operator string(CinemoVariable variable)
+        {
+            if (variable.Type == CinemoType.String)
+                return variable.AsString();
+
+            throw new InvalidCastException("CinemoVariable type is not String");
+        }
+
+        public static explicit operator Color(CinemoVariable variable)
+        {
+            if (variable.Type == CinemoType.Color4)
+                return variable.AsColor4();
+
+            throw new InvalidCastException("CinemoVariable type is not Color4");
+        }
+
+        public static explicit operator Vector3(CinemoVariable variable)
+        {
+            if (variable.Type == CinemoType.Vec3)
+                return variable.AsVec3();
+
+            throw new InvalidCastException("CinemoVariable type is not Vec3");
+        }
+
+        public static implicit operator CinemoVariable(int value)
+        {
+            return new CinemoVariable(value);
+        }
+
+        public static implicit operator CinemoVariable(float value)
+        {
+            return new CinemoVariable(value);
+        }
+
+        public static implicit operator CinemoVariable(bool value)
+        {
+            return new CinemoVariable(value);
+        }
+
+        public static implicit operator CinemoVariable(string value)
+        {
+            return new CinemoVariable(value);
+        }
+
+        public static implicit operator CinemoVariable(Color value)
+        {
+            return new CinemoVariable(value);
+        }
+
+        public static implicit operator CinemoVariable(Vector3 value)
+        {
+            return new CinemoVariable(value);
+        }
+
+        #endregion
     }
 }
