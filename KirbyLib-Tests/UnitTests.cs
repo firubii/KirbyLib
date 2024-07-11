@@ -351,6 +351,23 @@ namespace KirbyLib_Tests
 
         void PrintMapInfo(string name, MapRtDL map)
         {
+            if (map.Bosses.Count > 0)
+            {
+                Console.WriteLine(name);
+                for (int i = 0; i < map.Bosses.Count; i++)
+                {
+                    Console.WriteLine($"\t- Boss {i}:");
+                    Console.WriteLine($"\t\t- Kind: {map.Bosses[i].Kind}");
+                    Console.WriteLine($"\t\t- Sub Kind: {map.Bosses[i].SubKind}");
+                    Console.WriteLine($"\t\t- Level: {map.Bosses[i].Level}");
+                    Console.WriteLine($"\t\t- TerrainGroup: {map.Bosses[i].TerrainGroup}");
+                    Console.WriteLine($"\t\t- Has Super Ability: {map.Bosses[i].HasSuperAbility}");
+                    Console.WriteLine($"\t\t- X: {map.Bosses[i].X}");
+                    Console.WriteLine($"\t\t- Y: {map.Bosses[i].Y}");
+                    Console.WriteLine($"\t\t- Unknown: {map.Bosses[i].Unknown}");
+                }
+            }
+
             /*if (map.DecorationObjects.Length > 0)
                     {
                         Console.WriteLine($"{maps[i].Remove(0, PATH.Length)} contains {map.DecorationObjects.Length} decor objects");
@@ -381,7 +398,7 @@ namespace KirbyLib_Tests
                     {
                         Console.WriteLine($"{maps[i].Remove(0, PATH.Length)} is of type {map.Type}");
                     }*/
-
+            /*
             if (map.CollisionMoveGroups.Count(x => x.IsValid) > 0)
             {
                 Console.WriteLine(name);
@@ -448,6 +465,7 @@ namespace KirbyLib_Tests
                     }
                 }
             }
+            */
         }
 
         [TestMethod]

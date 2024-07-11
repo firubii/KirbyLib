@@ -177,7 +177,7 @@ namespace KirbyLib.Mapping
             public bool HasSuperAbility;
             public GridPos X;
             public GridPos Y;
-            public uint Unknown;
+            public float Unknown;
         }
 
         public struct CarryItem
@@ -454,9 +454,9 @@ namespace KirbyLib.Mapping
                 boss.Level = reader.ReadUInt32();
                 boss.TerrainGroup = reader.ReadInt32();
                 boss.HasSuperAbility = reader.ReadInt32() != 0;
-                boss.X = reader.ReadInt32();
-                boss.Y = reader.ReadInt32();
-                boss.Unknown = reader.ReadUInt32();
+                boss.X = reader.ReadUInt32();
+                boss.Y = reader.ReadUInt32();
+                boss.Unknown = reader.ReadSingle();
 
                 Bosses.Add(boss);
             }
@@ -471,8 +471,8 @@ namespace KirbyLib.Mapping
                 item.AppearGroup = reader.ReadUInt32();
                 item.CanRespawn = reader.ReadInt32() != 0;
                 item.TerrainGroup = reader.ReadInt32();
-                item.X = reader.ReadInt32();
-                item.Y = reader.ReadInt32();
+                item.X = reader.ReadUInt32();
+                item.Y = reader.ReadUInt32();
 
                 CarryItems.Add(item);
             }
