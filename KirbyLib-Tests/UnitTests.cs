@@ -96,6 +96,20 @@ namespace KirbyLib_Tests
                     PrintMapInfo(maps[i].Remove(0, PATH.Length), map);
                 }
             }
+
+            /*
+            const string IN_PATH = @"D:\Game Dumps\Kirby's Return to Dream Land Deluxe\romfs\map\Step\MahoroaMode\Area1Pow1\Step01.bin";
+            const string OUT_PATH = "Area1Pow1_Step01.bin";
+
+            MapRtDL map;
+            using (FileStream stream = new FileStream(IN_PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map = new MapRtDL(reader);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Create, FileAccess.Write))
+            using (EndianBinaryWriter writer = new EndianBinaryWriter(stream))
+                map.Write(writer);
+            */
         }
 
         [TestMethod]
@@ -145,32 +159,32 @@ namespace KirbyLib_Tests
                         Console.WriteLine($"\t\t- Terrain Group: {enemy.TerrainGroup}");
                     }
                     */
-                    /*
-                    for (int j = 0; j < map.CarryItems.Length; j++)
-                    {
-                        var item = map.CarryItems[j];
-                        Console.WriteLine($"\t- Carry Item {j}:");
-                        Console.WriteLine($"\t\t- Kind: {item.Kind}");
-                        Console.WriteLine($"\t\t- Variation: {item.Variation}");
-                        Console.WriteLine($"\t\t- Can Respawn: {item.CanRespawn}");
-                        Console.WriteLine($"\t\t- X: {item.X}");
-                        Console.WriteLine($"\t\t- Y: {item.Y}");
-                    }
-
-                    for (int j = 0; j < map.Items.Length; j++)
-                    {
-                        var item = map.Items[j];
-                        Console.WriteLine($"\t- Item {j}:");
-                        Console.WriteLine($"\t\t- Kind: {item.Kind}");
-                        Console.WriteLine($"\t\t- Variation: {item.Variation}");
-                        Console.WriteLine($"\t\t- SubKind: {item.SubKind}");
-                        Console.WriteLine($"\t\t- X: {item.X}");
-                        Console.WriteLine($"\t\t- Y: {item.Y}");
-                        Console.WriteLine($"\t\t- HideModeKind: {item.HideModeKind}");
-                    }
-                    */
-                }
+            /*
+            for (int j = 0; j < map.CarryItems.Length; j++)
+            {
+                var item = map.CarryItems[j];
+                Console.WriteLine($"\t- Carry Item {j}:");
+                Console.WriteLine($"\t\t- Kind: {item.Kind}");
+                Console.WriteLine($"\t\t- Variation: {item.Variation}");
+                Console.WriteLine($"\t\t- Can Respawn: {item.CanRespawn}");
+                Console.WriteLine($"\t\t- X: {item.X}");
+                Console.WriteLine($"\t\t- Y: {item.Y}");
             }
+
+            for (int j = 0; j < map.Items.Length; j++)
+            {
+                var item = map.Items[j];
+                Console.WriteLine($"\t- Item {j}:");
+                Console.WriteLine($"\t\t- Kind: {item.Kind}");
+                Console.WriteLine($"\t\t- Variation: {item.Variation}");
+                Console.WriteLine($"\t\t- SubKind: {item.SubKind}");
+                Console.WriteLine($"\t\t- X: {item.X}");
+                Console.WriteLine($"\t\t- Y: {item.Y}");
+                Console.WriteLine($"\t\t- HideModeKind: {item.HideModeKind}");
+            }
+            */
+                }
+    }
         }
 
         [TestMethod]
@@ -511,8 +525,8 @@ namespace KirbyLib_Tests
         [TestMethod]
         public void FDGTestV2()
         {
-            const string PATH = @"D:\Game Dumps\Kirby Star Allies\romfs\fdg\Archive.dat";
-            const string OUT_PATH = "KSA_FDG.dat";
+            const string PATH = @"D:\Game Dumps\Kirby's Return to Dreamland\DATA\files\fdg\Archive.dat";
+            const string OUT_PATH = "RTDL_FDG.dat";
 
             FDG fdg;
             using (FileStream stream = new FileStream(PATH, FileMode.Open, FileAccess.Read))
@@ -526,6 +540,18 @@ namespace KirbyLib_Tests
             using (FileStream stream = new FileStream(OUT_PATH, FileMode.Open, FileAccess.Read))
             using (EndianBinaryReader reader = new EndianBinaryReader(stream))
                 fdg = new FDG(reader);
+
+            for (int i = 0; i < fdg.Scenes.Count; i++)
+            {
+                if (!fdg.SceneOrder.Contains(fdg.Scenes[i].Name))
+                    Console.WriteLine($"{fdg.Scenes[i].Name} unreferenced in Scene Order");
+            }
+
+            for (int i = 0; i < fdg.SceneOrder.Count; i++)
+            {
+                Console.WriteLine(fdg.SceneOrder[i]);
+            }
+
         }
 
         [TestMethod]

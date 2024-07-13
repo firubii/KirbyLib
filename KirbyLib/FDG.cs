@@ -37,7 +37,7 @@ namespace KirbyLib
         public XData XData { get; private set; } = new XData();
 
         public List<Scene> Scenes = new List<Scene>();
-        public List<string> Files = new List<string>();
+        public List<string> SceneOrder = new List<string>();
 
         /// <summary>
         /// FDG Version.<br/>
@@ -65,7 +65,7 @@ namespace KirbyLib
 
             Version = reader.ReadInt32();
 
-            uint fileSection = reader.ReadUInt32();
+            uint scnOrderSection = reader.ReadUInt32();
             uint sceneSection = reader.ReadUInt32();
             uint stringSection = reader.ReadUInt32();
 
@@ -90,12 +90,6 @@ namespace KirbyLib
                     strings.Add(reader.ReadStringOffset());
                 }
             }
-
-            reader.BaseStream.Position = fileSection;
-            Files = new List<string>();
-            uint fileCount = reader.ReadUInt32();
-            for (uint i = 0; i < fileCount; i++)
-                Files.Add(strings[reader.ReadInt32()]);
 
             reader.BaseStream.Position = sceneSection;
             Scenes = new List<Scene>();
@@ -134,6 +128,12 @@ namespace KirbyLib
 
                 Scenes.Add(scene);
             }
+
+            reader.BaseStream.Position = scnOrderSection;
+            SceneOrder = new List<string>();
+            uint scnOrderCount = reader.ReadUInt32();
+            for (uint i = 0; i < scnOrderCount; i++)
+                SceneOrder.Add(Scenes[reader.ReadInt32()].Name);
         }
 
         public void Write(EndianBinaryWriter writer)
@@ -165,16 +165,15 @@ namespace KirbyLib
                 }
             }
 
-            for (int i = 0; i < Files.Count; i++)
-            {
-                if (!stringList.Contains(Files[i]))
-                    stringList.Add(Files[i]);
-            }
-
             writer.WritePositionAt(headerStart + 0x8);
-            writer.Write(Files.Count);
-            for (int i = 0; i < Files.Count; i++)
-                writer.Write(stringList.IndexOf(Files[i]));
+            writer.Write(SceneOrder.Count);
+            for (int i = 0; i < SceneOrder.Count; i++)
+            {
+                int idx = Scenes.FindIndex(x => x.Name == SceneOrder[i]);
+                if (idx < 0)
+                    throw new KeyNotFoundException($"Scene Order lists scene {SceneOrder[i]} at {i}, but the scene does not exist!");
+                writer.Write(idx);
+            }
 
             long sceneSection = writer.BaseStream.Position;
             writer.WritePositionAt(headerStart + 0xC);
