@@ -25,4 +25,4 @@ All sections of all formats are fully supported. The library is intended to matc
 
 ### For HAL's scripting bytecode, Mint/Basil, please see [MintWorkshop](https://github.com/firubii/MintWorkshop).
 
-[^1]: Cinemo support is in a separate class, [`CinemoKSA`](KirbyLib/CinemoKSA.cs), due to large format differences.
+[^1]: Cinemo support is in a separate class, [`CinemoKSA`](KirbyLib/KirbyLib/CinemoKSA.cs), due to large format differences.
