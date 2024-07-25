@@ -298,4 +298,23 @@ namespace KirbyLib.Mapping
         /// </summary>
         OWThroughRS33
     }
+
+    /// <summary>
+    /// Defines how the game will split the level data for the front and back lanes.
+    /// </summary>
+    public enum ScreenSplitKind : int
+    {
+        /// <summary>
+        /// No lanes.
+        /// </summary>
+        Normal = 0,
+        /// <summary>
+        /// Horizontal split.
+        /// </summary>
+        Horizontal,
+        /// <summary>
+        /// Vertical split.
+        /// </summary>
+        Vertical
+    }
 }

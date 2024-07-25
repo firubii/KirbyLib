@@ -22,25 +22,6 @@ namespace KirbyLib.Mapping
             NormalFarLv3,
         }
 
-        /// <summary>
-        /// Defines how the game will split the level data for the front and back lanes.
-        /// </summary>
-        public enum ScreenSplitKind : int
-        {
-            /// <summary>
-            /// No lanes.
-            /// </summary>
-            Normal = 0,
-            /// <summary>
-            /// Horizontal split.
-            /// </summary>
-            Horizontal,
-            /// <summary>
-            /// Vertical split.
-            /// </summary>
-            Vertical
-        }
-
         public const uint MAGIC_NUMBER = 0x0B;
 
         public override int Width => Collision.GetLength(0);
@@ -114,7 +95,7 @@ namespace KirbyLib.Mapping
         /// The light set to load for the map.
         /// </summary>
         public string LightSet = "GrassNeo_1";
-        public ScreenSplitKind ScreenSplit;
+        public ScreenSplitKind ScreenSplitKind;
         public uint Unknown2;
         public uint Unknown3;
         public int Unknown4;
@@ -206,7 +187,7 @@ namespace KirbyLib.Mapping
             reader.BaseStream.Position = generalSection;
             BGM = reader.ReadStringOffset();
             LightSet = reader.ReadStringOffset();
-            ScreenSplit = (ScreenSplitKind)reader.ReadInt32();
+            ScreenSplitKind = (ScreenSplitKind)reader.ReadInt32();
             Unknown2 = reader.ReadUInt32();
             Unknown3 = reader.ReadUInt32();
             Unknown4 = reader.ReadInt32();
@@ -296,7 +277,7 @@ namespace KirbyLib.Mapping
             writer.Write(-1);
             strings.Add(writer.BaseStream.Position, LightSet);
             writer.Write(-1);
-            writer.Write((int)ScreenSplit);
+            writer.Write((int)ScreenSplitKind);
             writer.Write(Unknown2);
             writer.Write(Unknown3);
             writer.Write(Unknown4);

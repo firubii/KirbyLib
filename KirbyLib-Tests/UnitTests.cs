@@ -207,7 +207,7 @@ namespace KirbyLib_Tests
                     Console.WriteLine($"\t- Decor Set: {map.DecorSet}");
                     Console.WriteLine($"\t- BGM: {map.BGM}");
                     Console.WriteLine($"\t- Light Set: {map.LightSet}");
-                    Console.WriteLine($"\t- Screen Split Kind:  {map.ScreenSplit}");
+                    Console.WriteLine($"\t- Screen Split Kind:  {map.ScreenSplitKind}");
                     Console.WriteLine($"\t- Unknown 2:  {map.Unknown2}");
                     Console.WriteLine($"\t- Unknown 3:  {map.Unknown3}");
                     Console.WriteLine($"\t- Unknown 4:  {map.Unknown4}");
