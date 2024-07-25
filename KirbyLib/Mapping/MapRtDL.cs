@@ -200,6 +200,8 @@ namespace KirbyLib.Mapping
             public uint ExtraModeSize;
             public int TerrainGroup;
             public bool HasSuperAbility;
+            public int DXUnk1;
+            public int DXUnk2;
             public GridPos X;
             public GridPos Y;
         }
@@ -597,7 +599,14 @@ namespace KirbyLib.Mapping
                 enemy.AnotherDimensionSize = reader.ReadUInt32();
                 enemy.ExtraModeSize = reader.ReadUInt32();
                 enemy.TerrainGroup = reader.ReadInt32();
-                enemy.HasSuperAbility = reader.ReadInt32() != 0;
+                enemy.HasSuperAbility = reader.ReadInt32() == 1;
+
+                if (XData.Version[0] == 5)
+                {
+                    enemy.DXUnk1 = reader.ReadInt32();
+                    enemy.DXUnk2 = reader.ReadInt32();
+                }
+
                 enemy.X = reader.ReadUInt32();
                 enemy.Y = reader.ReadUInt32();
 
@@ -910,6 +919,13 @@ namespace KirbyLib.Mapping
                 writer.Write(enemy.ExtraModeSize);
                 writer.Write(enemy.TerrainGroup);
                 writer.Write(enemy.HasSuperAbility ? 1 : 0);
+
+                if (XData.Version[0] == 5)
+                {
+                    writer.Write(enemy.DXUnk1);
+                    writer.Write(enemy.DXUnk2);
+                }
+
                 writer.Write(enemy.X);
                 writer.Write(enemy.Y);
             }
