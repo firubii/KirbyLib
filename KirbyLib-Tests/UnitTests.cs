@@ -31,7 +31,7 @@ namespace KirbyLib_Tests
         [TestMethod]
         public void YamlTest()
         {
-            const string IN_PATH = @"D:\Game Dumps\Kirby's Return to Dream Land Deluxe\romfs\exlyml\Omen\MasterSheet.bin";
+            const string IN_PATH = @"D:\Game Dumps\Kirby and the Forgotten Land\romfs\yaml\Scn\Step\Actor\Kirby\Sword\AttackParamBase.bin";
 
             Yaml yaml;
             using (FileStream stream = new FileStream(IN_PATH, FileMode.Open, FileAccess.Read))

@@ -187,9 +187,9 @@ namespace KirbyLib
                     }
                 case YamlType.Array:
                     {
-                        long listStart = reader.BaseStream.Position;
-
                         int count = reader.ReadInt32();
+
+                        long listStart = reader.BaseStream.Position;
                         List<YamlNode> nodes = new List<YamlNode>();
                         for (int i = 0; i < count; i++)
                         {
