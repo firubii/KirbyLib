@@ -149,7 +149,7 @@ namespace KirbyLib
                         int[] readOrder = new int[count];
                         if (version >= 4)
                         {
-                            reader.BaseStream.Position += count * 2;
+                            reader.BaseStream.Position = listStart + (count * 8);
                             for (int i = 0; i < count; i++)
                                 readOrder[i] = reader.ReadInt32();
                         }
@@ -163,7 +163,7 @@ namespace KirbyLib
                         Dictionary<string, YamlNode> nodes = new Dictionary<string, YamlNode>();
                         for (int i = 0; i < count; i++)
                         {
-                            reader.BaseStream.Position = listStart + (i * 8);
+                            reader.BaseStream.Position = listStart + (readOrder[i] * 8);
 
                             uint offs = 0;
                             if (version >= 5)
