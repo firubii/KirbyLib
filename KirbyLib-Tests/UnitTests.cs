@@ -11,13 +11,15 @@ namespace KirbyLib_Tests
         [TestMethod]
         public void YamlIOTest()
         {
-            const string IN_PATH = @"D:\Game Dumps\Kirby Star Allies\romfs\yaml\Scn\Step\Chara\BossCutIn.bin";
+            const string IN_PATH = @"D:\Game Dumps\Kirby's Return to Dream Land Deluxe\romfs\exlyml\Omen\MasterSheet.bin";
             const string OUT_PATH = "yaml_out_test.bin";
 
             Yaml yaml;
             using (FileStream stream = new FileStream(IN_PATH, FileMode.Open, FileAccess.Read))
             using (EndianBinaryReader reader = new EndianBinaryReader(stream))
                 yaml = new Yaml(reader);
+
+            Console.WriteLine(yaml);
 
             using (FileStream stream = new FileStream(OUT_PATH, FileMode.Create, FileAccess.Write))
             using (EndianBinaryWriter writer = new EndianBinaryWriter(stream))
@@ -26,6 +28,8 @@ namespace KirbyLib_Tests
             using (FileStream stream = new FileStream(OUT_PATH, FileMode.Open, FileAccess.Read))
             using (EndianBinaryReader reader = new EndianBinaryReader(stream))
                 yaml.Read(reader);
+
+            Console.WriteLine(yaml);
         }
 
         [TestMethod]

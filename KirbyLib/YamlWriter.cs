@@ -60,7 +60,7 @@ namespace KirbyLib
                     long listStart = writer.BaseStream.Position;
 
                     List<string> keyList = dict.Keys.ToList();
-                    string[] writeOrder = dict.Keys.Order().ToArray();
+                    List<string> writeOrder = dict.Keys.Order().ToList();
 
                     // Prepare the entire block first before writing anything else
                     for (int i = 0; i < dict.Count; i++)
@@ -71,11 +71,11 @@ namespace KirbyLib
 
                     if (yaml.Version >= 4)
                     {
-                        for (int i = 0; i < writeOrder.Length; i++)
-                            writer.Write(keyList.IndexOf(writeOrder[i]));
+                        for (int i = 0; i < keyList.Count; i++)
+                            writer.Write(writeOrder.IndexOf(keyList[i]));
                     }
 
-                    for (int i = 0; i < writeOrder.Length; i++)
+                    for (int i = 0; i < writeOrder.Count; i++)
                     {
                         strings.Add(new StringHelper(listStart + (i * 8), writeOrder[i]));
 
