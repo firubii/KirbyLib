@@ -42,7 +42,7 @@ namespace KirbyLib.IO
             byte[] strBytes = Encoding.UTF8.GetBytes(str);
             writer.Write(strBytes.Length);
             writer.Write(strBytes);
-            writer.Write(0);
+            writer.Write((byte)0);
             WritePadding(writer);
         }
 
@@ -51,7 +51,7 @@ namespace KirbyLib.IO
             byte[] strBytes = Encoding.Unicode.GetBytes(str);
             writer.Write(strBytes.Length / 2);
             writer.Write(strBytes);
-            writer.Write(0);
+            writer.Write((short)0);
             WritePadding(writer);
         }
 

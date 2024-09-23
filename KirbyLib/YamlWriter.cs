@@ -19,6 +19,17 @@ namespace KirbyLib
             this.writer = writer;
         }
 
+        // Why does HAL sort like this??? If this isn't sorted like this the game doesn't like the file and reads it wrong for some reason
+        private static int StringCompare(string a, string b)
+        {
+            if (char.IsUpper(a[0]) && char.IsLower(b[0]))
+                return -1;
+            else if(char.IsUpper(b[0]) && char.IsLower(a[0]))
+                return 1;
+
+            return string.Compare(a, b);
+        }
+
         public void Write()
         {
             yaml.XData.WriteHeader(writer);
@@ -60,7 +71,8 @@ namespace KirbyLib
                     long listStart = writer.BaseStream.Position;
 
                     List<string> keyList = dict.Keys.ToList();
-                    List<string> writeOrder = dict.Keys.Order().ToList();
+                    List<string> writeOrder = dict.Keys.ToList();
+                    writeOrder.Sort(StringCompare);
 
                     // Prepare the entire block first before writing anything else
                     for (int i = 0; i < dict.Count; i++)
