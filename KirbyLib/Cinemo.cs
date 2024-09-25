@@ -193,7 +193,7 @@ namespace KirbyLib
                 strings.Add(writer.BaseStream.Position, cObj.Type);
                 writer.Write(-1);
                 writer.Write(0);
-                writer.Write(writer.BaseStream.Position + 4);
+                writer.Write((uint)writer.BaseStream.Position + 4);
 
                 long structListStart = writer.BaseStream.Position;
                 writer.Write(cObj.Structs.Count);
@@ -208,7 +208,7 @@ namespace KirbyLib
 
                     strings.Add(writer.BaseStream.Position, cStruct.Name);
                     writer.Write(-1);
-                    writer.Write(writer.BaseStream.Position + 4);
+                    writer.Write((uint)writer.BaseStream.Position + 4);
 
                     long varListStart = writer.BaseStream.Position;
                     writer.Write(cStruct.Variables.Count);

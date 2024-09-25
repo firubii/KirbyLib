@@ -489,8 +489,8 @@ namespace KirbyLib_Tests
         [TestMethod]
         public void CinemoTest()
         {
-            const string PATH = @"D:\Game Dumps\Kirby and the Forgotten Land\romfs\gfx\Step\Decor\Light\Light.cndbin";
-            const string OUT_PATH = "Light_outtest.cndbin";
+            const string PATH = @"D:\Game Dumps\Kirby's Return to Dream Land Deluxe\romfs\cinemoparam\Yy\Tps\HeroActionParam.cndbin";
+            const string OUT_PATH = "HeroActionParam_outtest.cndbin";
 
             Cinemo cnd;
             using (FileStream stream = new FileStream(PATH, FileMode.Open, FileAccess.Read))
