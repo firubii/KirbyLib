@@ -844,5 +844,37 @@ namespace KirbyLib_Tests
             using (EndianBinaryReader reader = new EndianBinaryReader(stream))
                 map3d = new Map3D(reader);
         }
+
+        [TestMethod]
+        public void Map3DRumbleTest()
+        {
+            const string PATH = @"";
+            const string OUT_PATH = @"";
+
+            Map3DRumble map;
+            using (FileStream stream = new FileStream(PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map = new Map3DRumble(reader);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Create, FileAccess.Write))
+            using (EndianBinaryWriter writer = new EndianBinaryWriter(stream))
+                map.Write(writer);
+        }
+
+        [TestMethod]
+        public void MapKBBTest()
+        {
+            const string PATH = @"";
+            const string OUT_PATH = @"";
+
+            MapKBB map;
+            using (FileStream stream = new FileStream(PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map = new MapKBB(reader);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Create, FileAccess.Write))
+            using (EndianBinaryWriter writer = new EndianBinaryWriter(stream))
+                map.Write(writer);
+        }
     }
 }
