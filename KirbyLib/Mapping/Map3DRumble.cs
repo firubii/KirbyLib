@@ -440,6 +440,7 @@ namespace KirbyLib.Mapping
             }
 
             XData.WriteFilesize(writer);
+            XData.WriteFooter(writer);
         }
     }
 }

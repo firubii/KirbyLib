@@ -563,6 +563,7 @@ namespace KirbyLib.Mapping
                 WriteItem(writer, RoomGuardEndItems[i]);
 
             XData.WriteFilesize(writer);
+            XData.WriteFooter(writer);
         }
 
         private static Enemy ReadEnemy(EndianBinaryReader reader)
