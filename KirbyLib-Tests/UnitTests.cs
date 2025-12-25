@@ -908,5 +908,117 @@ namespace KirbyLib_Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void MapDDDIOTest()
+        {
+            const string PATH = @"D:\Game Dumps\Kirby Triple Deluxe\romfs\map\Den\Game\Main\Level0.dat";
+            const string OUT_PATH = "ddd_Level0.dat";
+
+            MapDrumDash map;
+            using (FileStream stream = new FileStream(PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map = new MapDrumDash(reader);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Create, FileAccess.Write))
+            using (EndianBinaryWriter writer = new EndianBinaryWriter(stream))
+                map.Write(writer);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map = new MapDrumDash(reader);
+        }
+
+        [TestMethod]
+        public void MapDDDDIOTest()
+        {
+            const string PATH = @"D:\Game Dumps\Dedede's Drum Dash Deluxe\romfs\map\Den\Game\Normal\Stage1.dat";
+            const string OUT_PATH = "dddd_Normal_Stage1.dat";
+
+            MapDrumDashDeluxe map;
+            using (FileStream stream = new FileStream(PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map = new MapDrumDashDeluxe(reader);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Create, FileAccess.Write))
+            using (EndianBinaryWriter writer = new EndianBinaryWriter(stream))
+                map.Write(writer);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map = new MapDrumDashDeluxe(reader);
+        }
+
+        [TestMethod]
+        public void MapDDDDTest()
+        {
+            const string PATH = @"D:\Game Dumps\Dedede's Drum Dash Deluxe\romfs\map";
+
+            string[] maps = Directory.GetFiles(PATH, "*.dat", SearchOption.AllDirectories);
+            for (int i = 0; i < maps.Length; i++)
+            {
+                Console.WriteLine(maps[i].Remove(0, PATH.Length));
+                using (FileStream stream = new FileStream(maps[i], FileMode.Open, FileAccess.Read))
+                using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                {
+                    MapDrumDashDeluxe map = new MapDrumDashDeluxe(reader);
+                    /*
+                    Console.WriteLine($"- Decoration: {map.Decoration}");
+                    Console.WriteLine($"- TimeLimit: {map.TimeLimit}");
+                    Console.WriteLine($"- Unknown: {map.Unknown}");
+                    Console.WriteLine($"- BGM: {map.BGM}");
+                    */
+                    /*
+                    Console.WriteLine($"- Drums: ({map.Drums.Count} drums)");
+                    for (int o = 0; o < map.Drums.Count; o++)
+                    {
+                        var obj = map.Drums[o];
+                        Console.WriteLine($"  - Object {o}");
+                        Console.WriteLine($"    - Kind: {obj.Kind}");
+                        Console.WriteLine($"    - Variation: {obj.Variation}");
+                        Console.WriteLine($"    - Dir: {obj.Dir}");
+                        Console.WriteLine($"    - Param: {obj.Param}");
+                        Console.WriteLine($"    - ParamExA: {obj.ParamExA}");
+                        Console.WriteLine($"    - ParamExB: {obj.ParamExB}");
+                        Console.WriteLine($"    - ParamExC: {obj.ParamExC}");
+                        Console.WriteLine($"    - ParamExD: {obj.ParamExD}");
+                        Console.WriteLine($"    - X: {obj.X}");
+                        Console.WriteLine($"    - Y: {obj.Y}");
+                    }
+                    */
+                    Console.WriteLine($"- Gimmicks: ({map.Gimmicks.Count} gimmicks)");
+                    for (int o = 0; o < map.Gimmicks.Count; o++)
+                    {
+                        var obj = map.Gimmicks[o];
+                        Console.WriteLine($"  - Object {o}");
+                        Console.WriteLine($"    - Kind: {obj.Kind}");
+                        Console.WriteLine($"    - Variation: {obj.Variation}");
+                        Console.WriteLine($"    - Dir: {obj.Dir}");
+                        Console.WriteLine($"    - Param: {obj.Param}");
+                        Console.WriteLine($"    - IdentNo: {obj.IdentNo}");
+                        Console.WriteLine($"    - ParamExA: {obj.ParamExA}");
+                        Console.WriteLine($"    - ParamExB: {obj.ParamExB}");
+                        Console.WriteLine($"    - ParamExC: {obj.ParamExC}");
+                        Console.WriteLine($"    - ParamExD: {obj.ParamExD}");
+                        Console.WriteLine($"    - X: {obj.X}");
+                        Console.WriteLine($"    - Y: {obj.Y}");
+                    }
+                    /*
+                    Console.WriteLine($"- Items: ({map.Items.Count} items)");
+                    for (int o = 0; o < map.Items.Count; o++)
+                    {
+                        var obj = map.Items[o];
+                        Console.WriteLine($"  - Object {o}");
+                        Console.WriteLine($"    - Kind: {obj.Kind}");
+                        Console.WriteLine($"    - Variation: {obj.Variation}");
+                        Console.WriteLine($"    - IdentNo: {obj.IdentNo}");
+                        Console.WriteLine($"    - GroupNo: {obj.GroupNo}");
+                        Console.WriteLine($"    - X: {obj.X}");
+                        Console.WriteLine($"    - X: {obj.Y}");
+                    }
+                    */
+                }
+            }
+        }
     }
 }
