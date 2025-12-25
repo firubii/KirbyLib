@@ -103,6 +103,17 @@ namespace KirbyLib.IO
             writer.BaseStream.Position = pos;
         }
 
+        public static Vector2 ReadVector2(this BinaryReader reader)
+        {
+            return new Vector2(reader.ReadSingle(), reader.ReadSingle());
+        }
+
+        public static void Write(this BinaryWriter writer, Vector2 vector)
+        {
+            writer.Write(vector.X);
+            writer.Write(vector.Y);
+        }
+
         public static Vector3 ReadVector3(this BinaryReader reader)
         {
             return new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());

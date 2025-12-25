@@ -846,10 +846,10 @@ namespace KirbyLib_Tests
         }
 
         [TestMethod]
-        public void Map3DRumbleTest()
+        public void Map3DRumbleIOTest()
         {
-            const string PATH = @"";
-            const string OUT_PATH = @"";
+            const string PATH = @"D:\Game Dumps\Kirby Planet Robobot\romfs\map\Confetti\Level1\Step01.dat";
+            const string OUT_PATH = @"k3dr_Level1_Step01.dat";
 
             Map3DRumble map;
             using (FileStream stream = new FileStream(PATH, FileMode.Open, FileAccess.Read))
@@ -859,13 +859,17 @@ namespace KirbyLib_Tests
             using (FileStream stream = new FileStream(OUT_PATH, FileMode.Create, FileAccess.Write))
             using (EndianBinaryWriter writer = new EndianBinaryWriter(stream))
                 map.Write(writer);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map = new Map3DRumble(reader);
         }
 
         [TestMethod]
-        public void MapKBBTest()
+        public void MapKBBIOTest()
         {
-            const string PATH = @"";
-            const string OUT_PATH = @"";
+            const string PATH = @"D:\Game Dumps\Kirby's Blowout Blast\romfs\map\Confetti\Game\Level1\Step01.dat";
+            const string OUT_PATH = "kbb_Level1_Step01.dat";
 
             MapKBB map;
             using (FileStream stream = new FileStream(PATH, FileMode.Open, FileAccess.Read))
@@ -875,6 +879,34 @@ namespace KirbyLib_Tests
             using (FileStream stream = new FileStream(OUT_PATH, FileMode.Create, FileAccess.Write))
             using (EndianBinaryWriter writer = new EndianBinaryWriter(stream))
                 map.Write(writer);
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map = new MapKBB(reader);
+        }
+
+        [TestMethod]
+        public void MapKBBTest()
+        {
+            const string PATH = @"D:\Game Dumps\Kirby's Blowout Blast\romfs\map";
+
+            string[] maps = Directory.GetFiles(PATH, "*.dat", SearchOption.AllDirectories);
+            for (int i = 0; i < maps.Length; i++)
+            {
+                Console.WriteLine(maps[i].Remove(0, PATH.Length));
+                using (FileStream stream = new FileStream(maps[i], FileMode.Open, FileAccess.Read))
+                using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                {
+                    MapKBB map = new MapKBB(reader);
+
+                    if (map.PlayerEndPos.HasValue)
+                        Console.WriteLine("- PlayerEndPos: " + map.PlayerEndPos.Value);
+                    if (map.PlayerEndPos2.HasValue)
+                        Console.WriteLine("- PlayerEndPos2: " + map.PlayerEndPos2.Value);
+                    if (map.AmiiboDoorPos.HasValue)
+                        Console.WriteLine("- AmiiboDoorPos: " + map.AmiiboDoorPos.Value);
+                }
+            }
         }
     }
 }

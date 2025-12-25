@@ -53,7 +53,7 @@ namespace KirbyLib.Mapping
             Food
         }
 
-        public enum BinObjKind : uint
+        public enum ObjKind : uint
         {
             Kirby,
             Waddledee,
@@ -68,7 +68,7 @@ namespace KirbyLib.Mapping
             Scarfy
         }
 
-        public enum BinObjType : uint
+        public enum ObjType : uint
         {
             Wait,
             RoundTrip,
@@ -112,7 +112,7 @@ namespace KirbyLib.Mapping
         /// </summary>
         public struct WarpStar
         {
-            public uint Unknown0x0;
+            public uint Variation;
             public Vector3 Position;
         }
 
@@ -148,46 +148,37 @@ namespace KirbyLib.Mapping
         /// <summary>
         /// An in-game object such as an enemy.
         /// </summary>
-        public class Object
+        public struct Enemy
         {
-            public BinObjKind Kind;
-            public BinObjType Type;
-            public uint Param;
+            public ObjKind Kind;
+            public ObjType Type;
+            public int Level;
             public float Angle;
-            public uint Unknown0x10;
-            public List<Vector3> Waypoints = new List<Vector3>();
+            public int Pursuit;
+            public List<Vector3> Markers;
         }
 
         #endregion
 
+        public const uint MAGIC_NUMBER = 0x2;
         public const uint HEADER_END = 0x12345678;
 
-        public const uint MAGIC_NUMBER = 0x2;
-
-        public const uint MAX_WAYPOINT_COUNT = 7; // included
-
-        public float Scale = 1.95f;
-
-        public float XOffset = 9.75f;
-
-        public float ZOffset = 7.8f;
-
-        public List<Gimmick> Gimmicks { get; set; } = new List<Gimmick>();
-
-        public List<StartPortal> StartPortals { get; set; } = new List<StartPortal>();
-
-        public List<WarpStar> WarpStars { get; set; } = new List<WarpStar>();
+        public const int ENEMY_MARKER_COUNT = 7;
 
         public XData XData { get; protected set; } = new XData();
 
-        public Map3DCollision MapCollision { get; set; } = new Map3DCollision();
-
-        public List<Block> Blocks { get; set; } = new List<Block>();
-
-        public List<Item> Items { get; set; } = new List<Item>();
-
-        public List<List<Object>> Objects { get; set; } = new List<List<Object>>();
+        public Map3DCollision MapCollision = new Map3DCollision();
+        public List<Gimmick> Gimmicks = new List<Gimmick>();
+        public List<StartPortal> StartPortals = new List<StartPortal>();
+        public List<WarpStar> WarpStars = new List<WarpStar>();
+        public List<Block> Blocks = new List<Block>();
+        public List<Item> Items = new List<Item>();
+        public List<List<Enemy>> EnemyGroups = new List<List<Enemy>>();
         
+        public Vector2 BlockSize = Vector2.One;
+        public float OffsX = 1f;
+        public float OffsZ = 1f;
+
         public Map3DRumble()
         {
             XData.Version = new byte[2] { 2, 0 };
@@ -222,25 +213,21 @@ namespace KirbyLib.Mapping
             uint warpStarSection = reader.ReadUInt32();
             uint itemCount = reader.ReadUInt32();
             uint itemSection = reader.ReadUInt32();
-            uint waveCount = reader.ReadUInt32();
-            
-            List<(uint, uint)> objWaves = new List<(uint, uint)>();
-            for (int i = 0; i < waveCount; i++)
-            {
-                Objects.Add(new List<Object>());
-                uint objCount = reader.ReadUInt32();
-                uint objSection = reader.ReadUInt32();
-                objWaves.Add((objCount, objSection));
-            }
+
+            long enemyGroupHeader = reader.BaseStream.Position;
+            uint enemyGroupCount = reader.ReadUInt32();
+            reader.BaseStream.Position += enemyGroupCount * 8;
 
             uint headerEnd = reader.ReadUInt32();
             if (headerEnd != HEADER_END)
                 throw new InvalidDataException($"Expected header to end with {HEADER_END}, got {headerEnd}");
 
             reader.BaseStream.Position = stageSettingsSection;
-            Scale = reader.ReadSingle() * reader.ReadSingle();
-            XOffset = reader.ReadSingle();
-            ZOffset = reader.ReadSingle();
+            BlockSize = reader.ReadVector2();
+            OffsX = reader.ReadSingle();
+            OffsZ = reader.ReadSingle();
+
+            MapCollision = new Map3DCollision();
 
             reader.BaseStream.Position = vertexTableSection;
             MapCollision.ReadVertexTable(reader, vertexTableCount);
@@ -248,6 +235,7 @@ namespace KirbyLib.Mapping
             reader.BaseStream.Position = collisionQuadsSection;
             MapCollision.ReadCollisionQuads(reader, collisionQuadCount);
 
+            Gimmicks = new List<Gimmick>();
             reader.BaseStream.Position = gimmickSection;
             for (int i = 0; i < gimmickCount; i++)
             {
@@ -264,6 +252,7 @@ namespace KirbyLib.Mapping
                 Gimmicks.Add(gimmick);
             }
 
+            StartPortals = new List<StartPortal>();
             reader.BaseStream.Position = startPortalSection;
             for (int i = 0; i < startPortalCount; i++)
             {
@@ -272,11 +261,7 @@ namespace KirbyLib.Mapping
                 startPortal.Unknown0x4 = reader.ReadUInt32();
                 startPortal.Unknown0x8 = reader.ReadUInt32();
                 startPortal.Angle = reader.ReadSingle();
-                Vector3 pos = new Vector3();
-                pos.X = reader.ReadSingle();
-                pos.Y = reader.ReadSingle();
-                pos.Z = reader.ReadSingle();
-                startPortal.Position = pos;
+                startPortal.Position = reader.ReadVector3();
                 StartPortals.Add(startPortal);
             }
 
@@ -297,12 +282,8 @@ namespace KirbyLib.Mapping
             for (int i = 0; i < warpStarCount; i++)
             {
                 WarpStar warpStar = new WarpStar();
-                warpStar.Unknown0x0 = reader.ReadUInt32();
-                Vector3 pos = new Vector3();
-                pos.X = reader.ReadSingle();
-                pos.Y = reader.ReadSingle();
-                pos.Z = reader.ReadSingle();
-                warpStar.Position = pos;
+                warpStar.Variation = reader.ReadUInt32();
+                warpStar.Position = reader.ReadVector3();
                 WarpStars.Add(warpStar);
             }
 
@@ -312,42 +293,38 @@ namespace KirbyLib.Mapping
                 Item item = new Item();
                 item.Kind = (BinItemKind)reader.ReadUInt32();
                 item.Variation = reader.ReadUInt32();
-                Vector3 pos = new Vector3();
-                pos.X = reader.ReadSingle();
-                pos.Y = reader.ReadSingle();
-                pos.Z = reader.ReadSingle();
-                item.Position = pos;
+                item.Position = reader.ReadVector3();
                 Items.Add(item);
             }
 
-            for (int i = 0; i < waveCount; i++)
+            EnemyGroups = new List<List<Enemy>>();
+            for (int i = 0; i < enemyGroupCount; i++)
             {
-                reader.BaseStream.Position = objWaves[i].Item2;
-                for (int j = 0; j < objWaves[i].Item1; j++)
+                reader.BaseStream.Position = enemyGroupHeader + 4 + (i * 8);
+
+                List<Enemy> group = new List<Enemy>();
+                uint enemyCount = reader.ReadUInt32();
+                reader.BaseStream.Position = reader.ReadUInt32();
+                for (int j = 0; j < enemyCount; j++)
                 {
-                    Object obj = new Object();
-                    obj.Kind = (BinObjKind)reader.ReadUInt32();
-                    obj.Type = (BinObjType)reader.ReadUInt32();
-                    obj.Param = reader.ReadUInt32();
+                    Enemy obj = new Enemy();
+                    obj.Kind = (ObjKind)reader.ReadUInt32();
+                    obj.Type = (ObjType)reader.ReadUInt32();
+                    obj.Level = reader.ReadInt32();
                     obj.Angle = reader.ReadSingle();
-                    obj.Unknown0x10 = reader.ReadUInt32();
-                    uint waypointCount = reader.ReadUInt32();
-                    for (int k = 0; k < waypointCount; k++)
+                    obj.Pursuit = reader.ReadInt32();
+                    obj.Markers = new List<Vector3>(ENEMY_MARKER_COUNT);
+                    uint posCount = reader.ReadUInt32();
+                    for (int k = 0; k < ENEMY_MARKER_COUNT; k++)
                     {
-                        Vector3 pos = new Vector3();
-                        pos.X = reader.ReadSingle();
-                        pos.Y = reader.ReadSingle();
-                        pos.Z = reader.ReadSingle();
-                        obj.Waypoints.Add(pos);
+                        Vector3 v = reader.ReadVector3();
+                        if (k < posCount)
+                            obj.Markers.Add(v);
                     }
-                    for (int k = 0; k < MAX_WAYPOINT_COUNT - waypointCount; k++)
-                    {
-                        reader.ReadUInt32();
-                        reader.ReadUInt32();
-                        reader.ReadUInt32();
-                    }
-                    Objects[i].Add(obj);
+                    group.Add(obj);
                 }
+
+                EnemyGroups.Add(group);
             }
         }
 
@@ -355,11 +332,13 @@ namespace KirbyLib.Mapping
         {
             XData.WriteHeader(writer);
 
+            long headerStart = writer.BaseStream.Position;
+
             writer.Write(MAGIC_NUMBER);
             writer.Write(-1);
-            writer.Write(MapCollision.VertexTable.Count);
+            writer.Write(MapCollision.Vertices.Count);
             writer.Write(-1);
-            writer.Write(MapCollision.CollisionQuads.Count);
+            writer.Write(MapCollision.Quads.Count);
             writer.Write(-1);
             writer.Write(Gimmicks.Count);
             writer.Write(-1);
@@ -371,106 +350,93 @@ namespace KirbyLib.Mapping
             writer.Write(-1);
             writer.Write(Items.Count);
             writer.Write(-1);
-            writer.Write(Objects.Count);
 
-            List<long> positions = new List<long>();
-            for (int i = 0; i < Objects.Count; i++)
+            long enemyGroupListStart = writer.BaseStream.Position;
+            writer.Write(EnemyGroups.Count);
+            for (int i = 0; i < EnemyGroups.Count; i++)
             {
-                writer.Write(Objects[i].Count);
-                positions.Add(writer.BaseStream.Position);
+                writer.Write(EnemyGroups[i].Count);
                 writer.Write(-1);
             }
 
             writer.Write(HEADER_END);
 
-            writer.WritePositionAt(0x14);
-            writer.Write(1.0f);
-            writer.Write(Scale);
-            writer.Write(XOffset);
-            writer.Write(ZOffset);
+            writer.WritePositionAt(headerStart + 0x4);
+            writer.Write(BlockSize);
+            writer.Write(OffsX);
+            writer.Write(OffsZ);
 
+            writer.WritePositionAt(headerStart + 0xC);
             MapCollision.WriteVertexTable(writer);
 
+            writer.WritePositionAt(headerStart + 0x14);
             MapCollision.WriteCollisionQuads(writer);
 
-            writer.WritePositionAt(0x2C);
-            foreach (Gimmick gimmick in Gimmicks)
+            writer.WritePositionAt(headerStart + 0x1C);
+            for (int i = 0; i < Gimmicks.Count; i++)
             {
+                var gimmick = Gimmicks[i];
                 writer.Write(gimmick.Kind);
                 writer.Write(gimmick.Unknown0x4);
                 writer.Write(gimmick.Unknown0x8);
                 writer.Write(gimmick.Angle);
-                writer.Write(gimmick.Position.X);
-                writer.Write(gimmick.Position.Y);
-                writer.Write(gimmick.Position.Z);
+                writer.Write(gimmick.Position);
             }
 
-            writer.WritePositionAt(0x34);
-            foreach (StartPortal portal in StartPortals)
+            writer.WritePositionAt(headerStart + 0x24);
+            for (int i = 0; i < StartPortals.Count; i++)
             {
+                var portal = StartPortals[i];
                 writer.Write(portal.Unknown0x0);
                 writer.Write(portal.Unknown0x4);
                 writer.Write(portal.Unknown0x8);
                 writer.Write(portal.Angle);
-                writer.Write(portal.Position.X);
-                writer.Write(portal.Position.Y);
-                writer.Write(portal.Position.Z);
+                writer.Write(portal.Position);
             }
 
-            for (int i = 0; i < Objects.Count; i++)
+            for (int i = 0; i < EnemyGroups.Count; i++)
             {
-                writer.WritePositionAt(positions[i]);
-                foreach (Object obj in Objects[i])
+                var group = EnemyGroups[i];
+                writer.WritePositionAt(enemyGroupListStart + 4 + (i * 8) + 4);
+                for (int o = 0; o < group.Count; o++)
                 {
+                    var obj = group[o];
                     writer.Write((uint)obj.Kind);
                     writer.Write((uint)obj.Type);
-                    writer.Write(obj.Param);
+                    writer.Write(obj.Level);
                     writer.Write(obj.Angle);
-                    writer.Write(obj.Unknown0x10);
-                    writer.Write(obj.Waypoints.Count);
-                    for (int j = 0; j < obj.Waypoints.Count && j < MAX_WAYPOINT_COUNT; j++)
-                    {
-                        writer.Write(obj.Waypoints[j].X);
-                        writer.Write(obj.Waypoints[j].Y);
-                        writer.Write(obj.Waypoints[j].Z);
-                    }
-
-                    for (int j = 0; j < MAX_WAYPOINT_COUNT - obj.Waypoints.Count; j++)
-                    {
-                        writer.Write(0.0f);
-                        writer.Write(0.0f);
-                        writer.Write(0.0f);
-                    }
+                    writer.Write(obj.Pursuit);
+                    writer.Write(obj.Markers.Count);
+                    for (int j = 0; j < ENEMY_MARKER_COUNT; j++)
+                        writer.Write(j < obj.Markers.Count ? obj.Markers[j] : Vector3.Zero);
                 }
             }
 
-            writer.WritePositionAt(0x3C);
-            foreach (Block block in Blocks)
+            writer.WritePositionAt(headerStart + 0x2C);
+            for (int i = 0; i < Blocks.Count; i++)
             {
+                var block = Blocks[i];
                 writer.Write(block.Kind);
                 writer.Write(block.GridPosition.X);
                 writer.Write(block.GridPosition.Y);
                 writer.Write(block.GridPosition.Z);
             }
 
-            writer.WritePositionAt(0x44);
-
-            foreach (WarpStar warpStar in WarpStars)
+            writer.WritePositionAt(headerStart + 0x34);
+            for (int i = 0; i < WarpStars.Count; i++)
             {
-                writer.Write(warpStar.Unknown0x0);
-                writer.Write(warpStar.Position.X);
-                writer.Write(warpStar.Position.Y);
-                writer.Write(warpStar.Position.Z);
+                var warpStar = WarpStars[i];
+                writer.Write(warpStar.Variation);
+                writer.Write(warpStar.Position);
             }
 
-            writer.WritePositionAt(0x4C);
-            foreach (Item item in Items)
+            writer.WritePositionAt(headerStart + 0x3C);
+            for (int i = 0; i < Items.Count; i++)
             {
+                var item = Items[i];
                 writer.Write((uint)item.Kind);
                 writer.Write(item.Variation);
-                writer.Write(item.Position.X);
-                writer.Write(item.Position.Y);
-                writer.Write(item.Position.Z);
+                writer.Write(item.Position);
             }
 
             XData.WriteFilesize(writer);

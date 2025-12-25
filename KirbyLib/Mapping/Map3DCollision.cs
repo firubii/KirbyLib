@@ -16,7 +16,7 @@ namespace KirbyLib.Mapping
         /// <summary>
         /// A solid quad collision. Each vertex is an index in the vertex table.
         /// </summary>
-        public struct CollisionQuad
+        public struct Quad
         {
             /// <summary>
             /// The type of collision.
@@ -28,51 +28,40 @@ namespace KirbyLib.Mapping
             public uint Vertex3;
         }
 
-        public List<Vector3> VertexTable { get; set; } = new List<Vector3>();
-
-        public List<CollisionQuad> CollisionQuads { get; set; } = new List<CollisionQuad>();
+        public List<Vector3> Vertices = new List<Vector3>();
+        public List<Quad> Quads = new List<Quad>();
 
         public void ReadVertexTable(EndianBinaryReader reader, uint count)
         {
+            Vertices = new List<Vector3>();
             for (int i = 0; i < count; i++)
-            {
-                Vector3 vertex = new Vector3();
-                vertex.X = reader.ReadSingle();
-                vertex.Y = reader.ReadSingle();
-                vertex.Z = reader.ReadSingle();
-                VertexTable.Add(vertex);
-            }
+                Vertices.Add(reader.ReadVector3());
         }
 
         public void ReadCollisionQuads(EndianBinaryReader reader, uint count)
         {
+            Quads = new List<Quad>();
             for (int i = 0; i < count; i++)
             {
-                CollisionQuad quad = new CollisionQuad();
+                Quad quad = new Quad();
                 quad.Kind = reader.ReadUInt32();
                 quad.Vertex0 = reader.ReadUInt32();
                 quad.Vertex1 = reader.ReadUInt32();
                 quad.Vertex2 = reader.ReadUInt32();
                 quad.Vertex3 = reader.ReadUInt32();
-                CollisionQuads.Add(quad);
+                Quads.Add(quad);
             }
         }
 
         public void WriteVertexTable(EndianBinaryWriter writer)
         {
-            writer.WritePositionAt(0x1C);
-            foreach (Vector3 vertex in VertexTable)
-            {
-                writer.Write(vertex.X);
-                writer.Write(vertex.Y);
-                writer.Write(vertex.Z);
-            }
+            foreach (Vector3 vertex in Vertices)
+                writer.Write(vertex);
         }
 
         public void WriteCollisionQuads(EndianBinaryWriter writer)
         {
-            writer.WritePositionAt(0x24);
-            foreach (CollisionQuad quad in CollisionQuads)
+            foreach (Quad quad in Quads)
             {
                 writer.Write(quad.Kind);
                 writer.Write(quad.Vertex0);

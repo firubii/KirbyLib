@@ -12,7 +12,7 @@ namespace KirbyLib.Mapping
     {
         #region Enums
 
-        public enum BinFoodKind : uint
+        public enum FoodKind : uint
         {
             DinnerCurry,
             DinnerOmelet,
@@ -43,7 +43,7 @@ namespace KirbyLib.Mapping
             SweetsChocolate
         }
 
-        public enum BinItemKind : uint
+        public enum ItemKind : uint
         {
             PointCoinG,
             PointCoinS,
@@ -51,7 +51,7 @@ namespace KirbyLib.Mapping
             Food
         }
 
-        public enum BinObjKind : uint
+        public enum ObjKind : uint
         {
             Kirby,
             Waddledee,
@@ -84,7 +84,7 @@ namespace KirbyLib.Mapping
             SpearSectledee
         }
 
-        public enum BinObjType : uint
+        public enum ObjType : uint
         {
             Wait,
             RoundTrip,
@@ -137,7 +137,7 @@ namespace KirbyLib.Mapping
         /// </summary>
         public struct WarpStar
         {
-            public uint Unknown0x0;
+            public uint Variation;
             public Vector3 Position;
         }
 
@@ -155,90 +155,76 @@ namespace KirbyLib.Mapping
         /// </summary>
         public struct Item
         {
-            public BinItemKind Kind;
+            public ItemKind Kind;
             public uint Variation;
             public Vector3 Position;
         }
 
-        public class Object
+        public struct Enemy
         {
-            public BinObjKind Kind;
-            public BinObjType Type;
-            public uint Param;
-            public float Angle;
-            public int Unknown0x10;
-            public uint Unknown0x14;
-            public uint Unknown0x18;
-            public uint Unknown0x1C;
-            public int Unknown0x20;
-            public uint Unknown0x24;
-            public List<Vector3> Waypoints = new List<Vector3>();
+            public ObjKind Kind;
+            public ObjType Type;
+            public int Level;
+            public float Dir;
+            public int Unknown;
+            public int Pursuit;
+            public int Big;
+            public int AlwaysUpdateOutOfScreen;
+            public int PosterioriEnemyListIdSeed;
+            public int GroupId;
+            public List<Vector3> Markers;
+        }
+
+        public struct Tree
+        {
+            public Vector3 Position;
+            public int Unknown1;
+            public int Unknown2;
+            public int Unknown3;
+            public int Unknown4;
         }
 
         #endregion
 
         public const uint MAGIC_NUMBER = 0x8;
-
-        public const uint MAX_WAYPOINT_COUNT = 15; // included
-
         public const uint HEADER_END = 0x12345678;
 
-        public float Scale = 1.95f;
-
-        public float XOffset = 9.75f;
-
-        public float ZOffset = 7.8f;
-
-        public float Unknown0x8 = 11.7f;
-
-        public float Unknown0xC = -54.6f;
-
-        public float Unknown0x10 = 1.95f;
+        public const int ENEMY_MARKER_COUNT = 15;
 
         public XData XData { get; protected set; } = new XData();
 
-        public Map3DCollision MapCollision { get; set; } = new Map3DCollision();
+        public Map3DCollision MapCollision = new Map3DCollision();
 
+        public List<Gimmick> Gimmicks = new List<Gimmick>();
+        public List<StartPortal> StartPortals = new List<StartPortal>();
         /// <summary>
-        /// An unused section.
+        /// List of tree objects. Completely unused.
         /// </summary>
-        public List<byte[]> UnknownSection { get; set; } = new List<byte[]>();
-
-        public List<Block> Blocks { get; set; } = new List<Block>();
-
-        public List<Item> Items { get; set; } = new List<Item>();
-
-        public List<Gimmick> Gimmicks { get; set; } = new List<Gimmick>();
-
-        public List<StartPortal> StartPortals { get; set; } = new List<StartPortal>();
-
-        public List<WarpStar> WarpStars { get; set; } = new List<WarpStar>();
-
-        /// <summary>
-        /// A collection of objects that are not in room guarders.
-        /// </summary>
-        public List<Object> FreeObjects { get; set; } = new List<Object>();
-
+        public List<Tree> Trees = new List<Tree>();
+        public List<Block> Blocks = new List<Block>();
+        public List<WarpStar> WarpStars = new List<WarpStar>();
+        public List<Item> Items = new List<Item>();
+        public List<Enemy> Enemies = new List<Enemy>();
         /// <summary>
         /// The position Kirby will be moved to at the end of the level. Some levels like 2-4
         /// leave it null, to replicate this, set the vector3 to null.
         /// </summary>
-        public Vector3? EndPosition { get; set; } = new Vector3();
-
-        public List<Yaml> YamlFiles { get; set; } = new List<Yaml>();
-
-        public List<Object> RoomGuardObjects { get; set; } = new List<Object>();
-
-        // Not too sure about this one, might need some double checking when we have more
-        // sophisticated tools for KBB level editing.
-        public Vector3 MaxCameraOffset { get; set; } = new Vector3();
-
+        public Vector3? PlayerEndPos = null;
+        public Vector3? PlayerEndPos2 = null;
+        public List<Yaml> YamlGimmicks = new List<Yaml>();
+        public List<Enemy> RoomGuardObjects = new List<Enemy>();
+        public Vector3? AmiiboDoorPos = null;
         /// <summary>
         /// A collection of all the items that should only appear once a room guard ends.
         /// </summary>
         public List<Item> RoomGuardEndItems { get; set; } = new List<Item>();
 
-        public uint Unknown = 1;
+        public Vector2 BlockSize = Vector2.One;
+        public float Unknown0x8 = 1f;
+        public float Unknown0xC = 1f;
+        public float Unknown0x10 = 1f;
+        public float OffsX = 1f;
+        public float OffsZ = 1f;
 
         public MapKBB()
         {
@@ -255,6 +241,8 @@ namespace KirbyLib.Mapping
         {
             XData.Read(reader);
 
+            long headerStart = reader.BaseStream.Position;
+
             uint magic = reader.ReadUInt32();
             if (magic != MAGIC_NUMBER)
                 throw new InvalidDataException($"Expected magic {MAGIC_NUMBER}, got {magic}");
@@ -268,24 +256,24 @@ namespace KirbyLib.Mapping
             uint gimmickSection = reader.ReadUInt32();
             uint startPortalCount = reader.ReadUInt32();
             uint startPortalSection = reader.ReadUInt32();
-            reader.ReadUInt32();
-            reader.ReadUInt32();
+            uint treeCount = reader.ReadUInt32();
+            uint treeListSection = reader.ReadUInt32();
             uint blockCount = reader.ReadUInt32();
             uint blockSection = reader.ReadUInt32();
             uint warpStarCount = reader.ReadUInt32();
             uint warpStarSection = reader.ReadUInt32();
             uint itemCount = reader.ReadUInt32();
             uint itemSection = reader.ReadUInt32();
-            reader.ReadUInt32();
-            uint freeObjectsCount = reader.ReadUInt32();
-            uint freeObjectsSection = reader.ReadUInt32();
-            uint endPosSection = reader.ReadUInt32();
-            reader.ReadUInt32();
+            uint enemyGroups = reader.ReadUInt32(); // unused group count
+            uint enemyCount = reader.ReadUInt32();
+            uint enemyListAddr = reader.ReadUInt32();
+            int endPosAddr = reader.ReadInt32();
+            int endPos2Addr = reader.ReadInt32();
             uint yamlFilesCount = reader.ReadUInt32();
             uint yamlFilesSection = reader.ReadUInt32();
             uint roomGuardObjectsCount = reader.ReadUInt32();
             uint roomGuardObjectsSection = reader.ReadUInt32();
-            uint camOffsetSection = reader.ReadUInt32();
+            uint amiiboDoorPos = reader.ReadUInt32();
             uint roomGuardEndItemsCount = reader.ReadUInt32();
             uint roomGuardEndItemsSection = reader.ReadUInt32();
             reader.ReadUInt32();
@@ -294,12 +282,12 @@ namespace KirbyLib.Mapping
                 throw new InvalidDataException($"Expected header to end with {HEADER_END}, got {headerEnd}");
 
             reader.BaseStream.Position = stageSettingsSection;
-            Scale = reader.ReadSingle() * reader.ReadSingle();
+            BlockSize = reader.ReadVector2();
             Unknown0x8 = reader.ReadSingle();
             Unknown0xC = reader.ReadSingle();
             Unknown0x10 = reader.ReadSingle();
-            XOffset = reader.ReadSingle();
-            ZOffset = reader.ReadSingle();
+            OffsX = reader.ReadSingle();
+            OffsZ = reader.ReadSingle();
 
             reader.BaseStream.Position = vertexTableSection;
             MapCollision.ReadVertexTable(reader, vertexTableCount);
@@ -308,6 +296,7 @@ namespace KirbyLib.Mapping
             MapCollision.ReadCollisionQuads(reader, collisionQuadCount);
 
             reader.BaseStream.Position = gimmickSection;
+            Gimmicks = new List<Gimmick>();
             for (int i = 0; i < gimmickCount; i++)
             {
                 Gimmick gimmick = new Gimmick();
@@ -315,15 +304,12 @@ namespace KirbyLib.Mapping
                 gimmick.Unknown0x4 = reader.ReadUInt32();
                 gimmick.Unknown0x8 = reader.ReadUInt32();
                 gimmick.Angle = reader.ReadSingle();
-                Vector3 pos = new Vector3();
-                pos.X = reader.ReadSingle();
-                pos.Y = reader.ReadSingle();
-                pos.Z = reader.ReadSingle();
-                gimmick.Position = pos;
+                gimmick.Position = reader.ReadVector3();
                 Gimmicks.Add(gimmick);
             }
 
             reader.BaseStream.Position = startPortalSection;
+            StartPortals = new List<StartPortal>();
             for (int i = 0; i < startPortalCount; i++)
             {
                 StartPortal startPortal = new StartPortal();
@@ -331,88 +317,95 @@ namespace KirbyLib.Mapping
                 startPortal.Unknown0x4 = reader.ReadUInt32();
                 startPortal.Unknown0x8 = reader.ReadUInt32();
                 startPortal.Angle = reader.ReadSingle();
-                Vector3 pos = new Vector3();
-                pos.X = reader.ReadSingle();
-                pos.Y = reader.ReadSingle();
-                pos.Z = reader.ReadSingle();
-                startPortal.Position = pos;
+                startPortal.Position = reader.ReadVector3();
                 StartPortals.Add(startPortal);
             }
 
+            reader.BaseStream.Position = treeListSection;
+            Trees = new List<Tree>();
+            for (int i = 0; i < treeCount; i++)
+            {
+                Tree tree = new Tree();
+                tree.Position = reader.ReadVector3();
+                tree.Unknown1 = reader.ReadInt32();
+                tree.Unknown2 = reader.ReadInt32();
+                tree.Unknown3 = reader.ReadInt32();
+                tree.Unknown4 = reader.ReadInt32();
+                Trees.Add(tree);
+            }
+
             reader.BaseStream.Position = blockSection;
+            Blocks = new List<Block>();
             for (int i = 0; i < blockCount; i++)
             {
                 Block block = new Block();
                 block.Kind = reader.ReadUInt32();
-                Vector3 pos = new Vector3(
-                    reader.ReadSingle(),
-                    reader.ReadSingle(),
-                    reader.ReadSingle());
-                block.Position = pos;
+                block.Position = reader.ReadVector3();
                 Blocks.Add(block);
             }
 
             reader.BaseStream.Position = warpStarSection;
+            WarpStars = new List<WarpStar>();
             for (int i = 0; i < warpStarCount; i++)
             {
                 WarpStar warpStar = new WarpStar();
-                warpStar.Unknown0x0 = reader.ReadUInt32();
-                Vector3 pos = new Vector3();
-                pos.X = reader.ReadSingle();
-                pos.Y = reader.ReadSingle();
-                pos.Z = reader.ReadSingle();
-                warpStar.Position = pos;
+                warpStar.Variation = reader.ReadUInt32();
+                warpStar.Position = reader.ReadVector3();
                 WarpStars.Add(warpStar);
             }
 
             reader.BaseStream.Position = itemSection;
+            Items = new List<Item>();
             for (int i = 0; i < itemCount; i++)
                 Items.Add(ReadItem(reader));
 
-            reader.BaseStream.Position = freeObjectsSection;
-            for (int i = 0; i < freeObjectsCount; i++)
-                FreeObjects.Add(ReadObject(reader));
+            reader.BaseStream.Position = enemyListAddr;
+            Enemies = new List<Enemy>();
+            for (int i = 0; i < enemyCount; i++)
+                Enemies.Add(ReadEnemy(reader));
 
-            if (endPosSection == 0xFFFFFFFF)
-                EndPosition = null;
-            else
+            PlayerEndPos = null;
+            if (endPosAddr > -1)
             {
-                reader.BaseStream.Position = endPosSection;
-                EndPosition = new Vector3(
-                    reader.ReadSingle(),
-                    reader.ReadSingle(),
-                    reader.ReadSingle());
+                reader.BaseStream.Position = endPosAddr;
+                PlayerEndPos = reader.ReadVector3();
+            }
+
+            PlayerEndPos2 = null;
+            if (endPos2Addr > -1)
+            {
+                reader.BaseStream.Position = endPos2Addr;
+                PlayerEndPos2 = reader.ReadVector3();
             }
 
             reader.BaseStream.Position = yamlFilesSection;
+            YamlGimmicks = new List<Yaml>();
             for (int i = 0; i < yamlFilesCount; i++)
             {
-                long pos = reader.BaseStream.Position;
-                uint yamlFileSection = reader.ReadUInt32();
-                reader.BaseStream.Position = yamlFileSection;
+                reader.BaseStream.Position = yamlFilesSection + (i * 4);
+                reader.BaseStream.Position = reader.ReadUInt32();
+
                 byte[] yamlData = XData.ExtractFile(reader);
 
-                Yaml yamlFile;
                 using (MemoryStream yamlStream = new MemoryStream(yamlData))
                 using (EndianBinaryReader yamlReader = new EndianBinaryReader(yamlStream))
-                    yamlFile = new Yaml(yamlReader);
-                YamlFiles.Add(yamlFile);
-
-                reader.BaseStream.Position = pos;
-                reader.ReadUInt32();
+                    YamlGimmicks.Add(new Yaml(yamlReader));
             }
 
             reader.BaseStream.Position = roomGuardObjectsSection;
+            RoomGuardObjects = new List<Enemy>();
             for (int i = 0; i < roomGuardObjectsCount; i++)
-                RoomGuardObjects.Add(ReadObject(reader));
+                RoomGuardObjects.Add(ReadEnemy(reader));
 
-            reader.BaseStream.Position = camOffsetSection;
-            MaxCameraOffset = new Vector3(
-                reader.ReadSingle(),
-                reader.ReadSingle(),
-                reader.ReadSingle());
+            AmiiboDoorPos = null;
+            if (amiiboDoorPos != 0)
+            {
+                reader.BaseStream.Position = amiiboDoorPos;
+                AmiiboDoorPos = reader.ReadVector3();
+            }
 
             reader.BaseStream.Position = roomGuardEndItemsSection;
+            RoomGuardEndItems = new List<Item>();
             for (int i = 0; i < roomGuardEndItemsCount; i++)
                 RoomGuardEndItems.Add(ReadItem(reader));
         }
@@ -421,17 +414,19 @@ namespace KirbyLib.Mapping
         {
             XData.WriteHeader(writer);
 
+            long headerStart = writer.BaseStream.Position;
+
             writer.Write(MAGIC_NUMBER);
             writer.Write(-1);
-            writer.Write(MapCollision.VertexTable.Count);
+            writer.Write(MapCollision.Vertices.Count);
             writer.Write(-1);
-            writer.Write(MapCollision.CollisionQuads.Count);
+            writer.Write(MapCollision.Quads.Count);
             writer.Write(-1);
             writer.Write(Gimmicks.Count);
             writer.Write(-1);
             writer.Write(StartPortals.Count);
             writer.Write(-1);
-            writer.Write(UnknownSection.Count);
+            writer.Write(Trees.Count);
             writer.Write(-1);
             writer.Write(Blocks.Count);
             writer.Write(-1);
@@ -439,206 +434,193 @@ namespace KirbyLib.Mapping
             writer.Write(-1);
             writer.Write(Items.Count);
             writer.Write(-1);
-            writer.Write(1);
-            writer.Write(FreeObjects.Count);
+            writer.Write(1); // unused enemy group count
+            writer.Write(Enemies.Count);
             writer.Write(-1);
             writer.Write(-1);
             writer.Write(-1);
-            writer.Write(YamlFiles.Count);
+            writer.Write(YamlGimmicks.Count);
             writer.Write(-1);
             writer.Write(RoomGuardObjects.Count);
             writer.Write(-1);
-            writer.Write(-1);
+            writer.Write(0);
             writer.Write(RoomGuardEndItems.Count);
             writer.Write(-1);
             writer.Write(1);
             writer.Write(HEADER_END);
 
-            writer.WritePositionAt(0x14);
-            writer.Write(1.0f);
-            writer.Write(Scale);
+            writer.WritePositionAt(headerStart + 0x4);
+            writer.Write(BlockSize);
             writer.Write(Unknown0x8);
             writer.Write(Unknown0xC);
             writer.Write(Unknown0x10);
-            writer.Write(XOffset);
-            writer.Write(ZOffset);
+            writer.Write(OffsX);
+            writer.Write(OffsZ);
 
+            writer.WritePositionAt(headerStart + 0xC);
             MapCollision.WriteVertexTable(writer);
+
+            writer.WritePositionAt(headerStart + 0x14);
             MapCollision.WriteCollisionQuads(writer);
 
-            writer.WritePositionAt(0x2C);
-            foreach (Gimmick gimmick in Gimmicks)
+            writer.WritePositionAt(headerStart + 0x1C);
+            for (int i = 0; i < Gimmicks.Count; i++)
             {
+                var gimmick = Gimmicks[i];
                 writer.Write(gimmick.Kind);
                 writer.Write(gimmick.Unknown0x4);
                 writer.Write(gimmick.Unknown0x8);
                 writer.Write(gimmick.Angle);
-                writer.Write(gimmick.Position.X);
-                writer.Write(gimmick.Position.Y);
-                writer.Write(gimmick.Position.Z);
+                writer.Write(gimmick.Position);
             }
 
-            writer.WritePositionAt(0x34);
-            foreach (StartPortal portal in StartPortals)
+            writer.WritePositionAt(headerStart + 0x24);
+            for (int i = 0; i < StartPortals.Count; i++)
             {
+                var portal = StartPortals[i];
                 writer.Write(portal.Unknown0x0);
                 writer.Write(portal.Unknown0x4);
                 writer.Write(portal.Unknown0x8);
                 writer.Write(portal.Angle);
-                writer.Write(portal.Position.X);
-                writer.Write(portal.Position.Y);
-                writer.Write(portal.Position.Z);
+                writer.Write(portal.Position);
             }
 
-            writer.WritePositionAt(0x60);
-            foreach (Object obj in FreeObjects)
-                WriteObject(writer, obj);
-
-            writer.WritePositionAt(0x78);
-            foreach (Object obj in RoomGuardObjects)
-                WriteObject(writer, obj);
-
-            writer.WritePositionAt(0x3C);
-            foreach (byte[] buffer in UnknownSection)
-                writer.Write(buffer);
-
-            writer.WritePositionAt(0x44);
-            foreach (Block block in Blocks)
+            writer.WritePositionAt(headerStart + 0x2C);
+            for (int i = 0; i < Trees.Count; i++)
             {
+                var tree = Trees[i];
+                writer.Write(tree.Position);
+                writer.Write(tree.Unknown1);
+                writer.Write(tree.Unknown2);
+                writer.Write(tree.Unknown3);
+                writer.Write(tree.Unknown4);
+            }
+
+            writer.WritePositionAt(headerStart + 0x34);
+            for (int i = 0; i < Blocks.Count; i++)
+            {
+                var block = Blocks[i];
                 writer.Write(block.Kind);
-                writer.Write(block.Position.X);
-                writer.Write(block.Position.Y);
-                writer.Write(block.Position.Z);
+                writer.Write(block.Position);
             }
 
-            writer.WritePositionAt(0x4C);
-            foreach (WarpStar star in WarpStars)
+            writer.WritePositionAt(headerStart + 0x3C);
+            for (int i = 0; i < WarpStars.Count; i++)
             {
-                writer.Write(star.Unknown0x0);
-                writer.Write(star.Position.X);
-                writer.Write(star.Position.Y);
-                writer.Write(star.Position.Z);
+                var star = WarpStars[i];
+                writer.Write(star.Variation);
+                writer.Write(star.Position);
             }
 
-            writer.WritePositionAt(0x54);
-            foreach (Item item in Items)
-                WriteItem(writer, item);
+            writer.WritePositionAt(headerStart + 0x44);
+            for (int i = 0; i < Items.Count; i++)
+                WriteItem(writer, Items[i]);
 
-            writer.WritePositionAt(0x84);
-            foreach (Item item in RoomGuardEndItems)
-                WriteItem(writer, item);
+            writer.WritePositionAt(headerStart + 0x50);
+            for (int i = 0; i < Enemies.Count; i++)
+                WriteEnemy(writer, Enemies[i]);
 
-            if (EndPosition.HasValue)
+            if (PlayerEndPos.HasValue)
             {
-                writer.WritePositionAt(0x64);
-                writer.Write(EndPosition.Value.X);
-                writer.Write(EndPosition.Value.Y);
-                writer.Write(EndPosition.Value.Z);
+                writer.WritePositionAt(headerStart + 0x54);
+                writer.Write(PlayerEndPos.Value);
             }
 
-            writer.WritePositionAt(0x70);
-            List<long> yamlPos = new List<long>();
-            for (int i = 0; i < YamlFiles.Count; i++)
+            if (PlayerEndPos2.HasValue)
             {
-                yamlPos.Add(writer.BaseStream.Position);
+                writer.WritePositionAt(headerStart + 0x58);
+                writer.Write(PlayerEndPos2.Value);
+            }
+
+            writer.WritePositionAt(headerStart + 0x60);
+            long yamlListStart = writer.BaseStream.Position;
+            for (int i = 0; i < YamlGimmicks.Count; i++)
                 writer.Write(-1);
-            }
-            for (int i = 0; i < YamlFiles.Count; i++)
+
+            for (int i = 0; i < YamlGimmicks.Count; i++)
             {
-                writer.WritePositionAt(yamlPos[i]);
+                writer.WritePositionAt(yamlListStart + (i * 4));
                 using (MemoryStream yamlStream = new MemoryStream())
                 {
                     using (EndianBinaryWriter yamlWriter = new EndianBinaryWriter(yamlStream))
-                        YamlFiles[i].Write(yamlWriter);
+                        YamlGimmicks[i].Write(yamlWriter);
                     writer.Write(yamlStream.ToArray());
                 }
-                while (writer.BaseStream.Position % 4 != 0)
-                    writer.Write((byte)0);
             }
 
-            writer.WritePositionAt(0x7C);
-            writer.Write(MaxCameraOffset.X);
-            writer.Write(MaxCameraOffset.Y);
-            writer.Write(MaxCameraOffset.Z);
+            writer.WritePositionAt(headerStart + 0x68);
+            for (int i = 0; i < RoomGuardObjects.Count; i++)
+                WriteEnemy(writer, RoomGuardObjects[i]);
+
+            if (AmiiboDoorPos.HasValue)
+            {
+                writer.WritePositionAt(headerStart + 0x6C);
+                writer.Write(AmiiboDoorPos.Value);
+            }
+
+            writer.WritePositionAt(headerStart + 0x74);
+            for (int i = 0; i < RoomGuardEndItems.Count; i++)
+                WriteItem(writer, RoomGuardEndItems[i]);
 
             XData.WriteFilesize(writer);
         }
 
-        private static Object ReadObject(EndianBinaryReader reader)
+        private static Enemy ReadEnemy(EndianBinaryReader reader)
         {
-            Object obj = new Object();
-            obj.Kind = (BinObjKind)reader.ReadUInt32();
-            obj.Type = (BinObjType)reader.ReadUInt32();
-            obj.Param = reader.ReadUInt32();
-            obj.Angle = reader.ReadSingle();
-            obj.Unknown0x10 = reader.ReadInt32();
-            obj.Unknown0x14 = reader.ReadUInt32();
-            obj.Unknown0x18 = reader.ReadUInt32();
-            obj.Unknown0x1C = reader.ReadUInt32();
-            obj.Unknown0x20 = reader.ReadInt32();
-            obj.Unknown0x24 = reader.ReadUInt32();
-            uint waypointCount = reader.ReadUInt32();
-            for (int i = 0; i < waypointCount; i++)
-                obj.Waypoints.Add(new Vector3(
-                    reader.ReadSingle(),
-                    reader.ReadSingle(),
-                    reader.ReadSingle()));
-            for (int i = 0; i < MAX_WAYPOINT_COUNT - waypointCount; i++)
+            Enemy obj = new Enemy();
+            obj.Kind = (ObjKind)reader.ReadUInt32();
+            obj.Type = (ObjType)reader.ReadUInt32();
+            obj.Level = reader.ReadInt32();
+            obj.Dir = reader.ReadSingle();
+            obj.Unknown = reader.ReadInt32();
+            obj.Pursuit = reader.ReadInt32();
+            obj.Big = reader.ReadInt32();
+            obj.AlwaysUpdateOutOfScreen = reader.ReadInt32();
+            obj.PosterioriEnemyListIdSeed = reader.ReadInt32();
+            obj.GroupId = reader.ReadInt32();
+            obj.Markers = new List<Vector3>(ENEMY_MARKER_COUNT);
+            uint posCount = reader.ReadUInt32();
+            for (int i = 0; i < ENEMY_MARKER_COUNT; i++)
             {
-                reader.ReadSingle();
-                reader.ReadSingle();
-                reader.ReadSingle();
+                Vector3 v = reader.ReadVector3();
+                if (i < posCount)
+                    obj.Markers.Add(v);
             }
+
             return obj;
         }
 
         private static Item ReadItem(EndianBinaryReader reader)
         {
             Item item = new Item();
-            item.Kind = (BinItemKind)reader.ReadUInt32();
+            item.Kind = (ItemKind)reader.ReadUInt32();
             item.Variation = reader.ReadUInt32();
-            Vector3 pos = new Vector3(
-                reader.ReadSingle(),
-                reader.ReadSingle(),
-                reader.ReadSingle());
-            item.Position = pos;
+            item.Position = reader.ReadVector3();
             return item;
         }
 
-        private static void WriteObject(EndianBinaryWriter writer, Object obj)
+        private static void WriteEnemy(EndianBinaryWriter writer, Enemy obj)
         {
             writer.Write((uint)obj.Kind);
             writer.Write((uint)obj.Type);
-            writer.Write(obj.Param);
-            writer.Write(obj.Angle);
-            writer.Write(obj.Unknown0x10);
-            writer.Write(obj.Unknown0x14);
-            writer.Write(obj.Unknown0x18);
-            writer.Write(obj.Unknown0x1C);
-            writer.Write(obj.Unknown0x20);
-            writer.Write(obj.Unknown0x24);
-            writer.Write(obj.Waypoints.Count);
-            for (int i = 0; i < obj.Waypoints.Count && i < MAX_WAYPOINT_COUNT; i++)
-            {
-                writer.Write(obj.Waypoints[i].X);
-                writer.Write(obj.Waypoints[i].Y);
-                writer.Write(obj.Waypoints[i].Z);
-            }
-            for (int i = 0; i < MAX_WAYPOINT_COUNT - obj.Waypoints.Count; i++)
-            {
-                writer.Write(0.0f);
-                writer.Write(0.0f);
-                writer.Write(0.0f);
-            }
+            writer.Write(obj.Level);
+            writer.Write(obj.Dir);
+            writer.Write(obj.Unknown);
+            writer.Write(obj.Pursuit);
+            writer.Write(obj.Big);
+            writer.Write(obj.AlwaysUpdateOutOfScreen);
+            writer.Write(obj.PosterioriEnemyListIdSeed);
+            writer.Write(obj.GroupId);
+            writer.Write(obj.Markers.Count);
+            for (int i = 0; i < ENEMY_MARKER_COUNT; i++)
+                writer.Write(i < obj.Markers.Count ? obj.Markers[i] : Vector3.Zero);
         }
 
         private static void WriteItem(EndianBinaryWriter writer, Item item)
         {
             writer.Write((uint)item.Kind);
             writer.Write(item.Variation);
-            writer.Write(item.Position.X);
-            writer.Write(item.Position.Y);
-            writer.Write(item.Position.Z);
+            writer.Write(item.Position);
         }
     }
 }
