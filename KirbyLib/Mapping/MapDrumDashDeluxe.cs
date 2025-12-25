@@ -176,8 +176,8 @@ namespace KirbyLib.Mapping
 
             uint generalSection = reader.ReadUInt32();
             uint drumSection = reader.ReadUInt32();
-            uint listSection2 = reader.ReadUInt32();
-            uint listSection3 = reader.ReadUInt32();
+            uint gimmickSection = reader.ReadUInt32();
+            uint itemSection = reader.ReadUInt32();
 
             uint headerEnd = reader.ReadUInt32();
             if (headerEnd != HEADER_END)
@@ -191,56 +191,56 @@ namespace KirbyLib.Mapping
 
             reader.BaseStream.Position = drumSection;
             Drums = new List<Drum>();
-            uint o1Count = reader.ReadUInt32();
-            for (int i = 0; i < o1Count; i++)
+            uint drumCount = reader.ReadUInt32();
+            for (int i = 0; i < drumCount; i++)
             {
-                Drum obj = new Drum();
-                obj.Kind = (DrumKind)reader.ReadUInt32();
-                obj.Variation = (DrumVariation)reader.ReadUInt32();
-                obj.Dir = (DrumDirType)reader.ReadUInt32();
-                obj.Param = reader.ReadSingle();
-                obj.ParamExA = reader.ReadUInt32();
-                obj.ParamExB = reader.ReadUInt32();
-                obj.ParamExC = reader.ReadUInt32();
-                obj.ParamExD = reader.ReadUInt32();
-                obj.X = reader.ReadUInt32();
-                obj.Y = reader.ReadUInt32();
-                Drums.Add(obj);
+                Drum drum = new Drum();
+                drum.Kind = (DrumKind)reader.ReadUInt32();
+                drum.Variation = (DrumVariation)reader.ReadUInt32();
+                drum.Dir = (DrumDirType)reader.ReadUInt32();
+                drum.Param = reader.ReadSingle();
+                drum.ParamExA = reader.ReadUInt32();
+                drum.ParamExB = reader.ReadUInt32();
+                drum.ParamExC = reader.ReadUInt32();
+                drum.ParamExD = reader.ReadUInt32();
+                drum.X = reader.ReadUInt32();
+                drum.Y = reader.ReadUInt32();
+                Drums.Add(drum);
             }
 
-            reader.BaseStream.Position = listSection2;
+            reader.BaseStream.Position = gimmickSection;
             Gimmicks = new List<Gimmick>();
-            uint o2Count = reader.ReadUInt32();
-            for (int i = 0; i < o2Count; i++)
+            uint gimmickCount = reader.ReadUInt32();
+            for (int i = 0; i < gimmickCount; i++)
             {
-                Gimmick obj = new Gimmick();
-                obj.Kind = (GimmickKind)reader.ReadUInt32();
-                obj.Variation = reader.ReadUInt32();
-                obj.Dir = (GimmickDirType)reader.ReadUInt32();
-                obj.Param = reader.ReadSingle();
-                obj.IdentNo = reader.ReadUInt32();
-                obj.ParamExA = reader.ReadUInt32();
-                obj.ParamExB = reader.ReadUInt32();
-                obj.ParamExC = reader.ReadUInt32();
-                obj.ParamExD = reader.ReadUInt32();
-                obj.X = reader.ReadUInt32();
-                obj.Y = reader.ReadUInt32();
-                Gimmicks.Add(obj);
+                Gimmick gimmick = new Gimmick();
+                gimmick.Kind = (GimmickKind)reader.ReadUInt32();
+                gimmick.Variation = reader.ReadUInt32();
+                gimmick.Dir = (GimmickDirType)reader.ReadUInt32();
+                gimmick.Param = reader.ReadSingle();
+                gimmick.IdentNo = reader.ReadUInt32();
+                gimmick.ParamExA = reader.ReadUInt32();
+                gimmick.ParamExB = reader.ReadUInt32();
+                gimmick.ParamExC = reader.ReadUInt32();
+                gimmick.ParamExD = reader.ReadUInt32();
+                gimmick.X = reader.ReadUInt32();
+                gimmick.Y = reader.ReadUInt32();
+                Gimmicks.Add(gimmick);
             }
 
-            reader.BaseStream.Position = listSection3;
+            reader.BaseStream.Position = itemSection;
             Items = new List<Item>();
-            uint o3Count = reader.ReadUInt32();
-            for (int i = 0; i < o3Count; i++)
+            uint itemCount = reader.ReadUInt32();
+            for (int i = 0; i < itemCount; i++)
             {
-                Item obj = new Item();
-                obj.Kind = (ItemKind)reader.ReadUInt32();
-                obj.Variation = (ItemVariation)reader.ReadUInt32();
-                obj.IdentNo = reader.ReadInt32();
-                obj.GroupNo = reader.ReadInt32();
-                obj.X = reader.ReadUInt32();
-                obj.Y = reader.ReadUInt32();
-                Items.Add(obj);
+                Item item = new Item();
+                item.Kind = (ItemKind)reader.ReadUInt32();
+                item.Variation = (ItemVariation)reader.ReadUInt32();
+                item.IdentNo = reader.ReadInt32();
+                item.GroupNo = reader.ReadInt32();
+                item.X = reader.ReadUInt32();
+                item.Y = reader.ReadUInt32();
+                Items.Add(item);
             }
         }
 

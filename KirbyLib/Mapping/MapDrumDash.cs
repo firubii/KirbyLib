@@ -135,9 +135,9 @@ namespace KirbyLib.Mapping
                 throw new InvalidDataException($"Expected magic {MAGIC_NUMBER}, got {magic}");
 
             uint generalSection = reader.ReadUInt32();
-            uint listSection1 = reader.ReadUInt32();
-            uint listSection2 = reader.ReadUInt32();
-            uint listSection3 = reader.ReadUInt32();
+            uint drumSectiom = reader.ReadUInt32();
+            uint gimmickSection = reader.ReadUInt32();
+            uint itemSection = reader.ReadUInt32();
 
             uint headerEnd = reader.ReadUInt32();
             if (headerEnd != HEADER_END)
@@ -148,10 +148,10 @@ namespace KirbyLib.Mapping
             TimeLimit = reader.ReadUInt32();
             Unknown = reader.ReadUInt32() != 0;
 
-            reader.BaseStream.Position = listSection1;
+            reader.BaseStream.Position = drumSectiom;
             Drums = new List<Drum>();
-            uint o1Count = reader.ReadUInt32();
-            for (int i = 0; i < o1Count; i++)
+            uint drumCount = reader.ReadUInt32();
+            for (int i = 0; i < drumCount; i++)
             {
                 Drum drum = new Drum();
                 drum.Kind = (DrumKind)reader.ReadUInt32();
@@ -163,10 +163,10 @@ namespace KirbyLib.Mapping
                 Drums.Add(drum);
             }
 
-            reader.BaseStream.Position = listSection2;
+            reader.BaseStream.Position = gimmickSection;
             Gimmicks = new List<Gimmick>();
-            uint o2Count = reader.ReadUInt32();
-            for (int i = 0; i < o2Count; i++)
+            uint gimmickCount = reader.ReadUInt32();
+            for (int i = 0; i < gimmickCount; i++)
             {
                 Gimmick gimmick = new Gimmick();
                 gimmick.Kind = (GimmickKind)reader.ReadUInt32();
@@ -178,17 +178,17 @@ namespace KirbyLib.Mapping
                 Gimmicks.Add(gimmick);
             }
 
-            reader.BaseStream.Position = listSection3;
+            reader.BaseStream.Position = itemSection;
             Items = new List<Item>();
-            uint o3Count = reader.ReadUInt32();
-            for (int i = 0; i < o3Count; i++)
+            uint itemCount = reader.ReadUInt32();
+            for (int i = 0; i < itemCount; i++)
             {
-                Item obj = new Item();
-                obj.Kind = (ItemKind)reader.ReadUInt32();
-                obj.Variation = reader.ReadUInt32();
-                obj.X = reader.ReadUInt32();
-                obj.Y = reader.ReadUInt32();
-                Items.Add(obj);
+                Item item = new Item();
+                item.Kind = (ItemKind)reader.ReadUInt32();
+                item.Variation = reader.ReadUInt32();
+                item.X = reader.ReadUInt32();
+                item.Y = reader.ReadUInt32();
+                Items.Add(item);
             }
         }
 
@@ -219,13 +219,13 @@ namespace KirbyLib.Mapping
             writer.Write(Drums.Count);
             for (int i = 0; i < Drums.Count; i++)
             {
-                var obj = Drums[i];
-                writer.Write((uint)obj.Kind);
-                writer.Write((uint)obj.Variation);
-                writer.Write((uint)obj.Dir);
-                writer.Write(obj.Param);
-                writer.Write(obj.X);
-                writer.Write(obj.Y);
+                Drum drum = Drums[i];
+                writer.Write((uint)drum.Kind);
+                writer.Write((uint)drum.Variation);
+                writer.Write((uint)drum.Dir);
+                writer.Write(drum.Param);
+                writer.Write(drum.X);
+                writer.Write(drum.Y);
             }
             writer.WritePadding(0x10);
 
@@ -233,13 +233,13 @@ namespace KirbyLib.Mapping
             writer.Write(Gimmicks.Count);
             for (int i = 0; i < Gimmicks.Count; i++)
             {
-                var obj = Gimmicks[i];
-                writer.Write((uint)obj.Kind);
-                writer.Write(obj.Variation);
-                writer.Write((uint)obj.Dir);
-                writer.Write(obj.Param);
-                writer.Write(obj.X);
-                writer.Write(obj.Y);
+                Gimmick gimmick = Gimmicks[i];
+                writer.Write((uint)gimmick.Kind);
+                writer.Write(gimmick.Variation);
+                writer.Write((uint)gimmick.Dir);
+                writer.Write(gimmick.Param);
+                writer.Write(gimmick.X);
+                writer.Write(gimmick.Y);
             }
             writer.WritePadding(0x10);
 
@@ -247,11 +247,11 @@ namespace KirbyLib.Mapping
             writer.Write(Items.Count);
             for (int i = 0; i < Items.Count; i++)
             {
-                var obj = Items[i];
-                writer.Write((uint)obj.Kind);
-                writer.Write(obj.Variation);
-                writer.Write(obj.X);
-                writer.Write(obj.Y);
+                Item item = Items[i];
+                writer.Write((uint)item.Kind);
+                writer.Write(item.Variation);
+                writer.Write(item.X);
+                writer.Write(item.Y);
             }
 
             strings.WriteAll(writer);
