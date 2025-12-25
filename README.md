@@ -9,9 +9,9 @@ All sections of all formats are fully supported. The library is intended to matc
 | Return to Dream Land        |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
 | Dream Collection            |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
 | Triple Deluxe               |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
-| Drum Dash                   |   ❌   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
+| Drum Dash                   |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
 | Fighters                    |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
-| Drum Dash Deluxe            |   ❌   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
+| Drum Dash Deluxe            |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
 | Fighters Deluxe             |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
 | Rainbow Curse               |   ❌   |  ➖   |     ❌      |   ➖   | ✔️ |         ➖       | ✔️ |     ➖     |  ➖  |  ✔️   |
 | Planet Robobot              |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ✔️  |  ✔️   |
