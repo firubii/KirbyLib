@@ -15,9 +15,9 @@ All sections of all formats are fully supported. The library is intended to matc
 | Fighters Deluxe             |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
 | Rainbow Curse               |   ❌   |  ➖   |     ❌      |   ➖   | ✔️ |         ➖       | ✔️ |     ➖     |  ➖  |  ✔️   |
 | Planet Robobot              |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ✔️  |  ✔️   |
-| 3D Rumble                   |   ➖   |  ❌   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ✔️  |  ✔️   |
+| 3D Rumble                   |   ➖   |  ✔️   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ✔️  |  ✔️   |
 | Team Clash                  |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ✔️  |  ✔️   |
-| Blowout Blast               |   ➖   |  ❌   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ✔️  |  ✔️   |
+| Blowout Blast               |   ➖   |  ✔️   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ✔️  |  ✔️   |
 | Team Clash Deluxe           |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ✔️  |  ✔️   |
 | Battle Royale               |   ➖   |  ➖   |     ➖      |   ➖   | ✔️ |         ➖       | ✔️ |     ➖     |  ✔️  |  ✔️   |
 | Star Allies                 |   ✔️   |  ✔️   |     ➖      |   ✔️[^1]   | ✔️ |         ➖       | ✔️ |     ✔️     |  ✔️  |  ✔️   |
