@@ -100,8 +100,8 @@ namespace KirbyLib.Mint
                 obj.Name = reader.ReadStringOffset();
                 uint objHash = reader.ReadUInt32(); // Inverted CRC32-C Object name hash, don't really need this because we can just calculate it whenever
                 /*
-                if (objHash != Crc32C.CalculateInv(obj.Name, XData.Endianness == Endianness.Big))
-                    Console.WriteLine($"Warning: Object {obj.Name} has incorrect hash of {objHash:X8}, expected {Crc32C.CalculateInv(obj.Name, XData.Endianness == Endianness.Big):X8}");
+                if (objHash != CRC32C.Calculate(obj.Name, XData.Endianness == Endianness.Big))
+                    Console.WriteLine($"Warning: Object {obj.Name} has incorrect hash of {objHash:X8}, expected {CRC32C.Calculate(obj.Name, XData.Endianness == Endianness.Big):X8}");
                 */
                 uint varAddr = reader.ReadUInt32();
                 uint funcAddr = reader.ReadUInt32();
@@ -125,8 +125,8 @@ namespace KirbyLib.Mint
                         string name = reader.ReadStringOffset();
                         uint hash = reader.ReadUInt32(); // Inverted CRC32-C variable name hash, can be calculated whenever
                         /*
-                        if (hash != Crc32C.CalculateInv($"{obj.Name}.{variable.Name}", XData.Endianness == Endianness.Big))
-                            Console.WriteLine($"Warning: Variable {obj.Name}.{variable.Name} has incorrect hash of {hash:X8}, expected {Crc32C.CalculateInv($"{obj.Name}.{variable.Name}", XData.Endianness == Endianness.Big):X8}");
+                        if (hash != CRC32C.Calculate($"{obj.Name}.{name}", XData.Endianness == Endianness.Big))
+                            Console.WriteLine($"Warning: Variable {obj.Name}.{name} has incorrect hash of {hash:X8}, expected {CRC32C.Calculate($"{obj.Name}.{name}", XData.Endianness == Endianness.Big):X8}");
                         */
                         string type = reader.ReadStringOffset();
 
@@ -162,8 +162,8 @@ namespace KirbyLib.Mint
                         MintFunction func = new MintFunction(name);
                         uint hash = reader.ReadUInt32(); // Inverted CRC32-C function name hash, can just be calculated whenever so again we don't really need it
                         /*
-                        if (hash != Crc32C.CalculateInv($"{obj.Name}.{func.NameWithoutType()}", XData.Endianness == Endianness.Big))
-                            Console.WriteLine($"Warning: Function {obj.Name}.{func.NameWithoutType()} has incorrect hash of {hash:X8}, expected {Crc32C.CalculateInv($"{obj.Name}.{func.NameWithoutType()}", XData.Endianness == Endianness.Big):X8}");
+                        if (hash != CRC32C.Calculate($"{obj.Name}.{func.NameWithoutType()}", XData.Endianness == Endianness.Big))
+                            Console.WriteLine($"Warning: Function {obj.Name}.{func.NameWithoutType()} has incorrect hash of {hash:X8}, expected {CRC32C.Calculate($"{obj.Name}.{func.NameWithoutType()}", XData.Endianness == Endianness.Big):X8}");
                         */
 
                         if (Format >= ModuleFormat.BasilKatFL)
@@ -273,7 +273,7 @@ namespace KirbyLib.Mint
 
                 strings.Add(writer.BaseStream.Position, obj.Name);
                 writer.Write(-1);
-                writer.Write(Crc32C.CalculateInv(obj.Name, isBigEndian));
+                writer.Write(CRC32C.Calculate(obj.Name, isBigEndian));
                 writer.Write(0);
                 writer.Write(0);
                 writer.Write(0);
@@ -301,7 +301,7 @@ namespace KirbyLib.Mint
 
                     strings.Add(writer.BaseStream.Position, var.Name);
                     writer.Write(-1);
-                    writer.Write(Crc32C.CalculateInv($"{obj.Name}.{var.Name}", isBigEndian));
+                    writer.Write(CRC32C.Calculate($"{obj.Name}.{var.Name}", isBigEndian));
                     strings.Add(writer.BaseStream.Position, var.Type);
                     writer.Write(-1);
                     writer.Write(var.Flags);
@@ -322,7 +322,7 @@ namespace KirbyLib.Mint
 
                     strings.Add(writer.BaseStream.Position, func.Name);
                     writer.Write(-1);
-                    writer.Write(Crc32C.CalculateInv($"{obj.Name}.{func.NameWithoutType()}", isBigEndian));
+                    writer.Write(CRC32C.Calculate($"{obj.Name}.{func.NameWithoutType()}", isBigEndian));
                     if (Format >= ModuleFormat.BasilKatFL)
                     {
                         writer.Write(func.Arguments);

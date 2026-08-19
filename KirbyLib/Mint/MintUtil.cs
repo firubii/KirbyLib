@@ -11,7 +11,7 @@ namespace KirbyLib.Mint
     {
         public static uint CalculateHash(string typeName, string name, bool bigEndian = false)
         {
-            return Crc32C.CalculateInv($"{typeName}.{name}", bigEndian);
+            return CRC32C.Calculate($"{typeName}.{name}", bigEndian);
         }
 
         public static string TrimFunctionType(string name)
