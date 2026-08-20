@@ -1020,5 +1020,51 @@ namespace KirbyLib_Tests
                 }
             }
         }
+
+        [TestMethod]
+        public void MapKatRCIOTest()
+        {
+            const string PATH = @"D:\Game Dumps\Kirby and the Rainbow Curse\content\map\Map00-I-01.dat";
+            const string OUT_PATH = "katrc_Map00-I-01.dat";
+
+            Console.WriteLine("Reading map...");
+
+            MapRainbowCurse map;
+            using (FileStream stream = new FileStream(PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map = new MapRainbowCurse(reader);
+
+            Console.WriteLine("Writing map...");
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Create, FileAccess.Write))
+            using (EndianBinaryWriter writer = new EndianBinaryWriter(stream))
+                map.Write(writer);
+
+            Console.WriteLine("Re-reading map...");
+
+            using (FileStream stream = new FileStream(OUT_PATH, FileMode.Open, FileAccess.Read))
+            using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                map = new MapRainbowCurse(reader);
+
+            Console.WriteLine("Done!");
+        }
+
+        [TestMethod]
+        public void MapKatRCTest()
+        {
+            const string PATH = @"D:\Game Dumps\Kirby and the Rainbow Curse\content\map";
+
+            string[] maps = Directory.GetFiles(PATH, "*.dat", SearchOption.AllDirectories);
+            for (int i = 0; i < maps.Length; i++)
+            {
+                Console.WriteLine(maps[i].Remove(0, PATH.Length));
+                using (FileStream stream = new FileStream(maps[i], FileMode.Open, FileAccess.Read))
+                using (EndianBinaryReader reader = new EndianBinaryReader(stream))
+                {
+                    MapRainbowCurse map = new MapRainbowCurse(reader);
+
+                }
+            }
+        }
     }
 }

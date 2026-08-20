@@ -13,7 +13,7 @@ All sections of all formats are fully supported. The library is intended to matc
 | Fighters                    |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
 | Drum Dash Deluxe            |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
 | Fighters Deluxe             |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ➖  |  ✔️   |
-| Rainbow Curse               |   ❌   |  ➖   |     ❌      |   ➖   | ✔️ |         ➖       | ✔️ |     ➖     |  ➖  |  ✔️   |
+| Rainbow Curse               |   ✔️   |  ➖   |     ❌      |   ➖   | ✔️ |         ➖       | ✔️ |     ➖     |  ➖  |  ✔️   |
 | Planet Robobot              |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ✔️  |  ✔️   |
 | 3D Rumble                   |   ➖   |  ✔️   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ✔️  |  ✔️   |
 | Team Clash                  |   ✔️   |  ➖   |     ➖      |   ➖   | ✔️ |         ✔️       | ✔️ |     ➖     |  ✔️  |  ✔️   |
