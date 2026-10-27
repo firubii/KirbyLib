@@ -21,6 +21,11 @@ namespace KirbyLib.Mint
         /// </summary>
         public string Type;
         /// <summary>
+        /// The type of the variable.<br/>
+        /// Note: Used starting in Basil 7.2.0
+        /// </summary>
+        public uint TypeHash;
+        /// <summary>
         /// Bitflags that tell the Mint VM how to treat this variable.
         /// </summary>
         public byte Flags;
@@ -28,6 +33,12 @@ namespace KirbyLib.Mint
         public MintVariable(string type, string name)
         {
             Type = type;
+            Name = name;
+        }
+
+        public MintVariable(uint type, string name)
+        {
+            TypeHash = type;
             Name = name;
         }
     }

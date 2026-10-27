@@ -13,6 +13,7 @@ namespace KirbyLib.Mint
         MintOld,
         Mint,
         BasilKatFL,
-        Basil
+        Basil,
+        BasilSCW
     }
 }

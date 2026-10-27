@@ -61,13 +61,16 @@ namespace KirbyLib.Mint
             reader.BaseStream.Position -= 4;
 
             Name = reader.ReadStringOffset();
+            if (Format >= ModuleFormat.BasilSCW)
+                reader.ReadUInt32(); // Hash of name, not needed
+
             if (Format >= ModuleFormat.BasilKatFL)
                 UnkHash = reader.ReadUInt32();
 
             uint sdataAddr = reader.ReadUInt32();
             uint xrefAddr = reader.ReadUInt32();
             uint objAddr = reader.ReadUInt32();
-            if (Format >= ModuleFormat.BasilKatFL)
+            if (Format >= ModuleFormat.BasilKatFL && Format < ModuleFormat.BasilSCW)
             {
                 // Placeholder until I find a module that has this set to anything other than 0
                 uint unk = reader.ReadUInt32();
@@ -122,15 +125,25 @@ namespace KirbyLib.Mint
                         reader.BaseStream.Position = varAddr + 4 + (v * 4);
                         reader.BaseStream.Position = reader.ReadUInt32();
 
+                        MintVariable variable;
+
                         string name = reader.ReadStringOffset();
                         uint hash = reader.ReadUInt32(); // Inverted CRC32-C variable name hash, can be calculated whenever
                         /*
                         if (hash != CRC32C.Calculate($"{obj.Name}.{name}", XData.Endianness == Endianness.Big))
                             Console.WriteLine($"Warning: Variable {obj.Name}.{name} has incorrect hash of {hash:X8}, expected {CRC32C.Calculate($"{obj.Name}.{name}", XData.Endianness == Endianness.Big):X8}");
                         */
-                        string type = reader.ReadStringOffset();
+                        if (Format >= ModuleFormat.BasilSCW)
+                        {
+                            uint type = reader.ReadUInt32();
+                            variable = new MintVariable(type, name);
+                        }
+                        else
+                        {
+                            string type = reader.ReadStringOffset();
+                            variable = new MintVariable(type, name);
+                        }
 
-                        MintVariable variable = new MintVariable(type, name);
                         variable.Flags = reader.ReadByte();
 
                         obj.Variables.Add(variable);
@@ -238,6 +251,9 @@ namespace KirbyLib.Mint
 
             strings.Add(writer.BaseStream.Position, Name);
             writer.Write(-1);
+            if (Format >= ModuleFormat.BasilSCW)
+                writer.Write(CRC32C.Calculate(Name, isBigEndian));
+
             if (Format >= ModuleFormat.BasilKatFL)
                 writer.Write(UnkHash);
 
@@ -302,8 +318,17 @@ namespace KirbyLib.Mint
                     strings.Add(writer.BaseStream.Position, var.Name);
                     writer.Write(-1);
                     writer.Write(CRC32C.Calculate($"{obj.Name}.{var.Name}", isBigEndian));
-                    strings.Add(writer.BaseStream.Position, var.Type);
-                    writer.Write(-1);
+
+                    if (Format >= ModuleFormat.BasilSCW)
+                    {
+                        writer.Write(var.TypeHash);
+                    }
+                    else
+                    {
+                        strings.Add(writer.BaseStream.Position, var.Type);
+                        writer.Write(-1);
+                    }
+                    
                     writer.Write(var.Flags);
                     writer.Align();
                 }
