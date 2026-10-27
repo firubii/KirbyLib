@@ -42,6 +42,10 @@ namespace KirbyLib
         {
             XData.Read(reader);
 
+            // Yaml 6 has 4 bytes of padding here, for some reason
+            if (reader.ReadUInt32() != 0)
+                reader.BaseStream.Position -= 4;
+
             string magic = Encoding.UTF8.GetString(reader.ReadBytes(4));
             if (magic != YAML_MAGIC)
                 throw new InvalidDataException("Yaml magic \"YAML\" not found!");
@@ -66,6 +70,7 @@ namespace KirbyLib
     {
         Invalid,
         Int,
+        UInt64,
         Float,
         Bool,
         String,
@@ -117,7 +122,17 @@ namespace KirbyLib
 
         public void Read(EndianBinaryReader reader, uint version)
         {
-            _type = (YamlType)reader.ReadInt32();
+            // In Yaml 6 types are 64-bit?????
+            if (version >= 6)
+                _type = (YamlType)reader.ReadInt64();
+            else
+            {
+                // Literally only because they inserted UInt64 at 2
+                int t = reader.ReadInt32();
+                if (t >= 2)
+                    t++;
+                _type = (YamlType)t;
+            }
             switch (Type)
             {
                 case YamlType.Invalid:
@@ -125,6 +140,9 @@ namespace KirbyLib
                     break;
                 case YamlType.Int:
                     data = reader.ReadInt32();
+                    break;
+                case YamlType.UInt64:
+                    data = reader.ReadUInt64();
                     break;
                 case YamlType.Float:
                     data = reader.ReadSingle();
@@ -229,6 +247,8 @@ namespace KirbyLib
             Type t = data.GetType();
             if (t == typeof(int))
                 _type = YamlType.Int;
+            else if (t == typeof(ulong))
+                _type = YamlType.UInt64;
             else if (t == typeof(float))
                 _type = YamlType.Float;
             else if (t == typeof(bool))
@@ -254,8 +274,19 @@ namespace KirbyLib
         /// </summary>
         public int AsInt()
         {
-            if (Type == YamlType.Int)
+            if (Type == YamlType.Int || Type == YamlType.UInt64)
                 return (int)data;
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Returns the unsigned 64-bit integer value of the node.<br/>If the type is incorrect, 0 is returned.
+        /// </summary>
+        public ulong AsUlong()
+        {
+            if (Type == YamlType.Int || Type == YamlType.UInt64)
+                return (ulong)data;
 
             return 0;
         }
@@ -579,10 +610,18 @@ namespace KirbyLib
 
         public static explicit operator int(YamlNode yaml)
         {
-            if (yaml.Type == YamlType.Int)
+            if (yaml.Type == YamlType.Int || yaml.Type == YamlType.UInt64)
                 return yaml.AsInt();
 
             throw new InvalidCastException("YamlNode type is not Int");
+        }
+
+        public static explicit operator ulong(YamlNode yaml)
+        {
+            if (yaml.Type == YamlType.Int || yaml.Type == YamlType.UInt64)
+                return yaml.AsUlong();
+
+            throw new InvalidCastException("YamlNode type is not UInt64");
         }
 
         public static explicit operator float(YamlNode yaml)

@@ -23,6 +23,9 @@ namespace KirbyLib
         {
             yaml.XData.WriteHeader(writer);
 
+            if (yaml.Version >= 6)
+                writer.Write(0);
+
             writer.Write(Yaml.YAML_MAGIC.ToCharArray());
             writer.Write(yaml.Version);
             WriteYamlNode(yaml.Root);
@@ -38,11 +41,29 @@ namespace KirbyLib
 
         public void WriteYamlNode(YamlNode node)
         {
-            writer.Write((int)node.Type);
+            YamlType _type = node.Type;
+
+            if (yaml.Version >= 6)
+                writer.Write((long)node.Type);
+            else
+            {
+                int t = (int)node.Type;
+                if (t >= 2)
+                    t--;
+
+                writer.Write(t);
+
+                if (_type == YamlType.UInt64)
+                    _type = YamlType.Int;
+            }
+
             switch (node.Type)
             {
                 case YamlType.Int:
                     writer.Write(node.AsInt());
+                    break;
+                case YamlType.UInt64:
+                    writer.Write(node.AsUlong());
                     break;
                 case YamlType.Float:
                     writer.Write(node.AsFloat());
