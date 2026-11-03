@@ -656,7 +656,7 @@ namespace KirbyLib.Mapping
                     if (kind >= 100)
                         kind += 9;
                     if (variation >= 337)
-                        kind += 83;
+                        variation += 83;
                 }
 
                 enemy.Kind = (BinEnemyKind)kind;
